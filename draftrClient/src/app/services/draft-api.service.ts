@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DraftPlayer } from '../models/draft-player';
+import { environment } from '../../environments/environment';
 
 export type DraftStatus = 'LOBBY' | 'RUNNING' | 'COMPLETED' | 'CANCELLED';
 
@@ -53,7 +54,7 @@ export interface MyPackResponse {
 
 @Injectable({ providedIn: 'root' })
 export class DraftApiService {
-  private readonly baseUrl = 'http://localhost:8080/api';
+  private readonly baseUrl = `${environment.apiBaseUrl}/api`;
 
   constructor(private http: HttpClient) {}
 

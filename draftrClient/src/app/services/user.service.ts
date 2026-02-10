@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 export interface User {
   userId: number;    
@@ -9,7 +10,7 @@ export interface User {
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private readonly API = 'http://localhost:8080/api/users';
+  private readonly API = `${environment.apiBaseUrl}/api/users`;
 
   constructor(private http: HttpClient) {}
 

@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 type LoginRequest = { username: string; password: string };
 type RegisterRequest = { username: string; email: string; password: string };
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly API = 'http://localhost:8080/api/auth';
+  private readonly API = `${environment.apiBaseUrl}/api/auth`;
   private readonly TOKEN_KEY = 'draftr_token';
 
   constructor(private http: HttpClient) {}

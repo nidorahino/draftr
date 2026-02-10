@@ -10,14 +10,14 @@ import { CubeEvent } from '../models/cube-event';
 import { Page } from '../models/page';
 import { CubeCollectionCard } from '../models/cube-collection-card';
 import { CardSearchResult } from '../models/card-search-result';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class CubeService {
-  private readonly API = 'http://localhost:8080/api/cubes';
+  private readonly API = `${environment.apiBaseUrl}/api/cubes`;
 
   constructor(private http: HttpClient) {}
 
-  
   searchCardsByName(name: string, page = 0, size = 10) {
     const params = new HttpParams()
       .set('name', name)
@@ -25,7 +25,7 @@ export class CubeService {
       .set('size', size);
 
     return this.http.get<Page<CardSearchResult>>(
-      `http://localhost:8080/api/cards/search`,
+      `${environment.apiBaseUrl}/api/cards/search`,
       { params }
     );
   }
