@@ -25,10 +25,10 @@ public class CardImportRunner implements CommandLineRunner {
     @Value("${app.images.base-url}")
     private String imagesBaseUrl;
 
-    @Value("${app.import.cards.enabled:true}")
+    @Value("${app.import.cards.enabled:false}")
     private boolean enabled;
 
-    @Value("${app.import.cards.skip-if-data:false}")
+    @Value("${app.import.cards.skip-if-data:true}")
     private boolean skipIfData;
 
     public CardImportRunner(ObjectMapper mapper, CardRepository repo) {
