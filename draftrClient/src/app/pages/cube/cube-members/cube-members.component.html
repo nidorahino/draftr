@@ -301,6 +301,40 @@
   </div>
 </div>
 
+<!-- Add member (Admin/Owner only) -->
+<div *ngIf="!loading && isAdmin()" class="card mb-3">
+  <div class="card-body d-flex flex-wrap align-items-center gap-2">
+    <div class="fw-semibold me-2">Add member</div>
+
+    <input
+      class="form-control form-control-sm"
+      style="width: 240px;"
+      placeholder="Username"
+      [(ngModel)]="addUsername"
+      (keyup.enter)="addMember()"
+    />
+
+    <button
+      class="btn btn-sm btn-primary"
+      type="button"
+      (click)="addMember()"
+      [disabled]="!addUsername?.trim()"
+    >
+      Add
+    </button>
+
+    <button
+      class="btn btn-sm btn-outline-secondary"
+      type="button"
+      (click)="addUsername = ''"
+      [disabled]="!addUsername"
+    >
+      Clear
+    </button>
+  </div>
+</div>
+
+
 <!-- Errors -->
 <div *ngIf="error" class="alert alert-danger py-2 mb-3">
   {{ error }}
