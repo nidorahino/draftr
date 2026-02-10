@@ -22,6 +22,9 @@ public class CardImportRunner implements CommandLineRunner {
     private final ObjectMapper mapper;
     private final CardRepository repo;
 
+    @Value("${app.images.base-url}")
+    private String imagesBaseUrl;
+
     @Value("${app.import.cards.enabled:false}")
     private boolean enabled;
 
@@ -48,7 +51,7 @@ public class CardImportRunner implements CommandLineRunner {
             response = mapper.readValue(is, CardInfoResponse.class);
         }
 
-        List<CardDto> cards = response.data();
+        List<CardDto> cards = response.getData();
         if (cards == null || cards.isEmpty()) {
             System.out.println("No cards found in ygo/cardinfo.json");
             return;
@@ -85,7 +88,11 @@ public class CardImportRunner implements CommandLineRunner {
             card.setDef(dto.def());
             card.setYgoprodeckUrl(dto.ygoprodeck_url());
 
-            card.setImageUrl("cards/" + id + ".jpg");
+            String base = imagesBaseUrl.endsWith("/")
+                    ? imagesBaseUrl.substring(0, imagesBaseUrl.length() - 1)
+                    : imagesBaseUrl;
+
+            card.setImageUrl(base + "/cards/" + id + ".jpg");
 
             // save = insert or update by primary key (card_id)
             repo.save(card);

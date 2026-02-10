@@ -2,4 +2,18 @@ package ygo.draftr.importer.dto;
 
 import java.util.List;
 
-public record CardInfoResponse(List<CardDto> data) {}
+public class CardInfoResponse {
+
+    private List<CardDto> data;
+
+    public CardInfoResponse() {
+    }
+
+    public List<CardDto> getData() {
+        return data;
+    }
+
+    public void setData(List<CardDto> data) {
+        this.data = data;
+    }
+}

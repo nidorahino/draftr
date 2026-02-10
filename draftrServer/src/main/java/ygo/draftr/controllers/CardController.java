@@ -179,7 +179,7 @@ public class CardController {
         r.setCardType(c.getCardType());
         r.setHumanReadableCardType(c.getHumanReadableCardType());
         r.setArchetype(c.getArchetype());
-        r.setImageUrl(toPublicImageUrl(c.getImageUrl()));
+        r.setImageUrl(c.getImageUrl());
         return r;
     }
 
