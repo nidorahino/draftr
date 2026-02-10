@@ -1,0 +1,52 @@
+.landing-hero {
+  background: var(--card);
+  border-color: var(--border);
+  color: var(--text);
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.landing-brand {
+  display: grid;
+  justify-items: center;
+}
+
+.landing-logo {
+  max-width: 600px;   /* bigger cap */
+  width: 85%;         /* takes more space */
+  height: auto;
+
+  margin-bottom: 0.25rem; /* tighter spacing */
+
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,0.20));
+}
+
+/* Squarish / “cube-ish” without external fonts */
+.landing-title {
+  margin-top: 0;          /* remove default gap */
+  line-height: 1;         /* tighter vertical spacing */
+
+  letter-spacing: 0.22em; /* slightly tighter */
+  padding-left: 0.22em;
+
+  font-weight: 800;
+  font-size: clamp(1.7rem, 2.8vw, 2.6rem);
+
+  text-transform: uppercase;
+
+  /* gives that “blocky” vibe */
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* subtle depth */
+  text-shadow: 0 2px 0 rgba(0,0,0,0.15);
+}
+
+.landing-content {
+  text-align: center;
+}
+
+.landing-content p {
+  max-width: 56ch;
+  margin-left: auto;
+  margin-right: auto;
+}

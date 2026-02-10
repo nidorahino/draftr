@@ -1,0 +1,111 @@
+### --------------------------------------------------
+### Base: Get first page of cards (default listing)
+### --------------------------------------------------
+GET http://localhost:8080/api/cards?page=0&size=24
+Accept: application/json
+
+
+### --------------------------------------------------
+### Search by name / description / archetype
+### --------------------------------------------------
+GET http://localhost:8080/api/cards?query=dragon&page=0&size=24
+Accept: application/json
+
+
+### --------------------------------------------------
+### Filter by card type
+### --------------------------------------------------
+GET http://localhost:8080/api/cards?cardType=Effect%20Monster&page=0&size=24
+Accept: application/json
+
+
+### --------------------------------------------------
+### Filter by attribute
+### --------------------------------------------------
+GET http://localhost:8080/api/cards?attribute=DARK&page=0&size=24
+Accept: application/json
+
+
+### --------------------------------------------------
+### Filter by archetype
+### --------------------------------------------------
+GET http://localhost:8080/api/cards?archetype=Blue-Eyes&page=0&size=24
+Accept: application/json
+
+
+### --------------------------------------------------
+### Combined filters
+### --------------------------------------------------
+GET http://localhost:8080/api/cards?query=dragon&cardType=Effect%20Monster&attribute=DARK&page=0&size=24
+Accept: application/json
+
+
+### --------------------------------------------------
+### Sort by name (A-Z)
+### --------------------------------------------------
+GET http://localhost:8080/api/cards?page=0&size=24&sort=name,asc
+Accept: application/json
+
+
+### --------------------------------------------------
+### Sort by ATK (descending)
+### --------------------------------------------------
+GET http://localhost:8080/api/cards?page=0&size=24&sort=atk,desc
+Accept: application/json
+
+
+### --------------------------------------------------
+### Get card by ID (replace with a real ID if needed)
+### --------------------------------------------------
+GET http://localhost:8080/api/cards/6983839
+Accept: application/json
+
+
+### --------------------------------------------------
+### Get all archetypes (for dropdown)
+### --------------------------------------------------
+GET http://localhost:8080/api/cards/archetypes
+Accept: application/json
+
+
+### --------------------------------------------------
+### Get all races (for dropdown)
+### --------------------------------------------------
+GET http://localhost:8080/api/cards/races
+Accept: application/json
+
+
+### --------------------------------------------------
+### Get all attributes (for dropdown)
+### --------------------------------------------------
+GET http://localhost:8080/api/cards/attributes
+Accept: application/json
+
+
+### --------------------------------------------------
+### Get all card types (for dropdown)
+### --------------------------------------------------
+GET http://localhost:8080/api/cards/types
+Accept: application/json
+
+
+### --------------------------------------------------
+### Invalid card ID (should return 404)
+### --------------------------------------------------
+GET http://localhost:8080/api/cards/999999999999
+Accept: application/json
+
+
+### --------------------------------------------------
+### Bad pagination (negative page, too big size)
+### Should auto-sanitize in controller
+### --------------------------------------------------
+GET http://localhost:8080/api/cards?page=-5&size=999
+Accept: application/json
+
+
+### --------------------------------------------------
+### Get all filters in one call
+### --------------------------------------------------
+GET http://localhost:8080/api/cards/filters
+Accept: application/json

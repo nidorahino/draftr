@@ -1,0 +1,71 @@
+/* =========================
+   Icon-only add cube button
+========================= */
+.cube-add-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  line-height: 0;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 6px;
+}
+
+/* Remove background hover */
+.cube-add-btn:hover {
+  background: none;
+}
+
+/* Base icon */
+.cube-add-icon {
+  width: 75px;
+  height: 75px;
+  display: block;
+
+  /* Default: neutral */
+  filter: brightness(0) invert(0);
+
+  transition: filter 120ms ease, transform 120ms ease;
+}
+
+/* Dark mode default */
+:root[data-theme="dark"] .cube-add-icon {
+  filter: brightness(0) invert(1);
+}
+
+/* Hover: tint to primary */
+.cube-add-btn:hover .cube-add-icon {
+  filter:
+    brightness(0)
+    saturate(100%)
+    invert(32%)
+    sepia(91%)
+    saturate(2100%)
+    hue-rotate(210deg);
+}
+
+/* Dark mode hover */
+:root[data-theme="dark"] .cube-add-btn:hover .cube-add-icon {
+  filter:
+    brightness(0)
+    saturate(100%)
+    invert(75%)
+    sepia(40%)
+    saturate(900%)
+    hue-rotate(190deg);
+}
+
+/* Optional: tiny lift */
+.cube-add-btn:hover .cube-add-icon {
+  transform: translateY(-1px);
+}
+
+.cube-card-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  padding: 4px; /* was implicit via gutters, now controlled */
+}

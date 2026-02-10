@@ -1,0 +1,83 @@
+<div *ngIf="loading" class="text-muted">Loading…</div>
+
+<div *ngIf="error" class="alert alert-danger">
+  {{ error }}
+</div>
+
+<div *ngIf="cube">
+  <div class="mb-3">
+    <h1 class="h3 mb-1">{{ cube.name }}</h1>
+
+    <div class="text-muted small">
+      Role:
+      <span class="badge text-bg-secondary">{{ cube.myRole }}</span>
+      · Max players: {{ cube.maxPlayers }}
+    </div>
+  </div>
+
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+    <a class="nav-link" routerLink="collection" routerLinkActive="active">
+        My Collection
+    </a>
+    </li>
+
+    <li class="nav-item">
+      <a
+        class="nav-link"
+        routerLink="cards"
+        routerLinkActive="active"
+      >
+        Card Pool
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a
+        class="nav-link"
+        routerLink="members"
+        routerLinkActive="active"
+      >
+        Members
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a
+        class="nav-link"
+        routerLink="audit"
+        routerLinkActive="active"
+      >
+        Audit
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a
+        class="nav-link"
+        routerLink="bans"
+        routerLinkActive="active"
+      >
+        Bans
+      </a>
+    </li>
+
+    <li class="nav-item" *ngIf="isAdmin()">
+      <a class="nav-link" routerLink="settings" routerLinkActive="active">
+        Settings
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link"
+        routerLink="draft"
+        routerLinkActive="active">
+        Draft
+      </a>
+    </li>
+
+  </ul>
+
+  <!-- Child routes render here -->
+  <router-outlet></router-outlet>
+</div>

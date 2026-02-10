@@ -1,0 +1,188 @@
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h2 class="h5 mb-0">Ban List</h2>
+
+  <div class="btn-group btn-group-sm">
+    <button
+      class="btn btn-outline-secondary"
+      [class.active]="viewMode === 'list'"
+      (click)="viewMode = 'list'"
+    >
+      List
+    </button>
+    <button
+      class="btn btn-outline-secondary"
+      [class.active]="viewMode === 'image'"
+      (click)="viewMode = 'image'"
+    >
+      Cards
+    </button>
+  </div>
+</div>
+
+<div *ngIf="loading" class="text-muted">Loading…</div>
+
+<div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+<div *ngIf="!loading && !error && bannedCards.length === 0" class="alert alert-info">
+  No banned cards.
+</div>
+
+<!-- Two-pane layout -->
+<div *ngIf="!loading && !error && bannedCards.length > 0" class="row g-3">
+  <!-- LEFT: list or grid -->
+  <div class="col-12 col-lg-8">
+    <!-- List view -->
+    <div *ngIf="viewMode === 'list'" class="list-group">
+      <button
+        type="button"
+        class="list-group-item list-group-item-action"
+        *ngFor="let c of bannedCards"
+        (click)="select(c)"
+        [class.active]="isSelected(c.cardId)"
+        [ngStyle]="getRowStyleForCard(c)"
+      >
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fw-semibold">
+              {{ c.name ?? ('Card #' + c.cardId) }}
+            </div>
+          </div>
+
+          <span class="badge text-bg-danger">BANNED</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Image grid view -->
+    <div *ngIf="viewMode === 'image'" class="row g-2">
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2" *ngFor="let c of bannedCards">
+
+        <div
+          class="position-relative shadow-sm rounded overflow-hidden "
+          style="cursor:pointer;"
+          (click)="select(c)"
+          [class.card-selected]="isSelected(c.cardId)"
+        >
+
+          <!-- Card image -->
+          <img
+            *ngIf="c.imageUrl"
+            [src]="c.imageUrl"
+            class="w-100 d-block"
+            alt="card"
+            style="aspect-ratio: 3 / 4; object-fit: contain;"
+          />
+
+          <div *ngIf="!c.imageUrl"
+              class="d-flex align-items-center justify-content-center text-muted"
+              style="aspect-ratio: 3 / 4;">
+            No image
+          </div>
+
+          <!-- Banned overlay icon -->
+          <img
+            *ngIf="c.banned"
+            src="assets/icons/banned.svg"
+            alt="Banned"
+            class="position-absolute top-0 end-0 mx-2 my-1 banned-icon"
+          />
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: details panel -->
+  <div class="col-12 col-lg-4">
+    <div class="card shadow-sm h-100" *ngIf="selected">
+      <div class="card-body d-flex flex-column">
+
+        <!-- Image -->
+        <div class="text-center mb-3">
+          <img
+            *ngIf="selected.imageUrl"
+            [src]="selected.imageUrl"
+            class="img-fluid rounded border"
+            alt="card image"
+            style="max-height: 420px;"
+          />
+
+          <div *ngIf="!selected.imageUrl" class="text-muted">
+            No image.
+          </div>
+        </div>
+
+        <!-- Name / Type -->
+        <div class="mb-2">
+          <div class="fw-semibold">
+            {{ selected.name ?? ('Card #' + selected.cardId) }}
+          </div>
+
+          <div class="text-muted small">
+            {{ selected.humanReadableCardType ?? selected.cardType ?? '' }}
+          </div>
+
+          <div class="text-muted small" *ngIf="selected.archetype">
+            {{ selected.archetype }}
+          </div>
+        </div>
+
+        <!-- Meta -->
+        <div class="mb-2 small text-muted">
+          <div>ID: {{ selected.cardId }}</div>
+          <div>
+            Status:
+            <span class="badge text-bg-danger ms-1">BANNED</span>
+          </div>
+        </div>
+
+        <!-- Description (scrollable) -->
+        <div
+          class="border rounded p-2 small flex-grow-1 mb-3"
+          style="overflow-y: auto; background:#fafafa;"
+        >
+          {{ selected.description ?? 'No description.' }}
+        </div>
+
+        <!-- Stats -->
+        <div
+          *ngIf="selected.atk != null || selected.def != null || selected.level != null"
+          class="d-flex justify-content-between align-items-center small text-muted border-top pt-2 mt-2 pb-4"
+        >
+
+          <!-- Level / Rank -->
+          <div *ngIf="selected.level != null">
+            ⭐ Level: <strong>{{ selected.level }}</strong>
+          </div>
+
+          <!-- ATK -->
+          <div *ngIf="selected.atk != null">
+            ⚔️ ATK: <strong>{{ selected.atk }}</strong>
+          </div>
+
+          <!-- DEF (not for Links usually) -->
+          <div *ngIf="selected.def != null">
+            🛡️ DEF: <strong>{{ selected.def }}</strong>
+          </div>
+
+        </div>
+
+        <!-- Actions (future admin buttons) -->
+        <!-- Keep space reserved so layout doesn’t jump -->
+        <div class="d-grid gap-2 mt-auto">
+          <!-- Example future buttons -->
+          <!--
+          <button class="btn btn-sm btn-success">Unban</button>
+          <button class="btn btn-sm btn-outline-danger">Remove</button>
+          -->
+        </div>
+
+      </div>
+    </div>
+
+    <div *ngIf="!selected" class="alert alert-secondary">
+      Select a card to see details.
+    </div>
+  </div>
+
+</div>

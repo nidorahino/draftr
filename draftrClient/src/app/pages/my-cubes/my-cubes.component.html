@@ -1,0 +1,104 @@
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h1 class="h3 mb-0">My Cubes</h1>
+
+<button
+  type="button"
+  class="cube-add-btn"
+  (click)="toggleCreate()"
+  title="Create Cube"
+>
+  <img
+    src="assets/icons/add_cube.svg"
+    alt="Create cube"
+    class="cube-add-icon"
+  />
+</button>
+
+</div>
+
+<div *ngIf="showCreate" class="card shadow-sm mb-3">
+  <div class="card-body">
+    <form (ngSubmit)="createCube()" #f="ngForm" class="row g-2 align-items-end">
+      <div class="col-12 col-md-7">
+        <label class="form-label">Cube name</label>
+        <input
+          class="form-control"
+          name="name"
+          [(ngModel)]="createModel.name"
+          required
+          minlength="3"
+          maxlength="80"
+          placeholder="e.g. Friday Night Cube"
+        />
+      </div>
+
+      <div class="col-12 col-md-3">
+        <label class="form-label">Max players</label>
+        <input
+          class="form-control"
+          type="number"
+          name="maxPlayers"
+          [(ngModel)]="createModel.maxPlayers"
+          required
+          min="2"
+          max="16"
+        />
+      </div>
+
+      <div class="col-12 col-md-2 d-grid">
+        <button
+          class="btn btn-success"
+          type="submit"
+          [disabled]="creating || f.invalid"
+        >
+          {{ creating ? 'Creating…' : 'Create' }}
+        </button>
+      </div>
+
+      <div class="col-12" *ngIf="createError">
+        <div class="alert alert-danger mb-0">{{ createError }}</div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div *ngIf="loading" class="text-muted">Loading…</div>
+
+<div *ngIf="error" class="alert alert-danger">
+  {{ error }}
+</div>
+
+<div *ngIf="!loading && !error && cubes.length === 0" class="alert alert-info">
+  You don't have any cubes yet.
+</div>
+
+<div class="row g-3" *ngIf="!loading && !error && cubes.length > 0">
+<div class="col-6 col-md-4 col-lg-3 col-xl-2" *ngFor="let c of cubes">
+
+  <div class="cube-card-wrapper">
+    <div class="card cube-card shadow-sm">
+
+      <div class="card-body position-relative">
+        <a
+          class="stretched-link"
+          [routerLink]="['/cubes', c.cubeId]"
+          aria-label="Open cube"
+        ></a>
+
+        <div class="d-flex justify-content-between align-items-start">
+          <h2 class="h5 mb-1">{{ c.name }}</h2>
+          <span class="badge text-bg-secondary">{{ c.role }}</span>
+        </div>
+
+        <div class="text-muted small mb-2">
+          Max players: {{ c.maxPlayers }}
+        </div>
+
+        <div class="text-muted small">
+          Created: {{ c.createdAt | date: 'medium' }}
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>

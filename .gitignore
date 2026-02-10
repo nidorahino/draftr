@@ -1,0 +1,43 @@
+# =====================
+# Root safety net
+# =====================
+
+# Environment / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Logs
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# IDE / Editor
+.idea/
+.vscode/
+
+# Backup / temp files
+*~
+*.swp
+*.tmp
+
+# =====================
+# Java / Spring Boot
+# =====================
+
+# Maven
+**/target/
+**/.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+**/.gradle/
+**/build/
+
+# Kotlin
+**/.kotlin/
+
+# Spring
+**/logs/

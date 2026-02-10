@@ -1,0 +1,26 @@
+### Create cube
+POST http://localhost:8080/api/cubes?actorUserId=2
+Content-Type: application/json
+
+{
+  "name": "My First Cube",
+  "maxPlayers": 4
+}
+
+### List my cubes
+GET http://localhost:8080/api/cubes?actorUserId=2
+Accept: application/json
+
+### Update cube card qty
+PUT http://localhost:8080/api/cubes/1/cards/6983839?actorUserId=2
+Content-Type: application/json
+
+{
+  "maxQty": 3
+}
+
+### Remove cube card
+DELETE http://localhost:8080/api/cubes/1/cards/6983839?actorUserId=2
+
+### Remove member (owner removes)
+DELETE http://localhost:8080/api/cubes/1/members/5?actorUserId=2

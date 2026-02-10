@@ -1,0 +1,639 @@
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h2 class="h5 mb-0">Card Pool</h2>
+
+  <div class="d-flex align-items-center gap-3">
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        id="incBanned"
+        [(ngModel)]="includeBanned"
+        (change)="load()"
+      />
+      <label class="form-check-label" for="incBanned">Include banned</label>
+    </div>
+
+    <div class="btn-group btn-group-sm">
+      <button class="btn btn-outline-secondary"
+              [class.active]="viewMode === 'list'"
+              (click)="viewMode = 'list'">
+        List
+      </button>
+      <button class="btn btn-outline-secondary"
+              [class.active]="viewMode === 'image'"
+              (click)="viewMode = 'image'">
+        Cards
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+<div *ngIf="loading" class="text-muted">Loading…</div>
+
+<div *ngIf="!loading && cards.length === 0" class="alert alert-info">
+  No cards in this cube yet.
+</div>
+
+<!-- Two-pane layout -->
+<div *ngIf="!loading" class="row g-3">
+
+  <!-- LEFT -->
+  <div class="col-12 col-lg-8">
+
+    <!-- Admin Tools -->
+    <div *ngIf="isAdmin()" class="card mb-3 shadow-sm">
+      <div class="card-body">
+
+        <!-- Header -->
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="fw-semibold">Admin</div>
+
+          <!-- Collapsed -->
+          <button *ngIf="!adminToolsOpen"
+                  class="btn btn-outline-primary btn-sm"
+                  (click)="toggleAdminTools()">
+            Admin Tools
+          </button>
+
+          <!-- Expanded -->
+          <button *ngIf="adminToolsOpen"
+                  class="btn btn-outline-secondary btn-sm"
+                  (click)="closeAdminTools()">
+            Close
+          </button>
+        </div>
+
+        <!-- Expanded Content -->
+        <div *ngIf="adminToolsOpen" class="mt-3">
+
+          <!-- Tool chooser -->
+          <div *ngIf="adminToolOpen === null" class="d-flex flex-wrap gap-2 mb-3">
+            <button class="btn btn-outline-primary btn-sm" (click)="openTool('search')">
+              Search & Add
+            </button>
+
+            <button class="btn btn-outline-secondary btn-sm" (click)="openTool('manual')">
+              Add by ID
+            </button>
+
+            <button class="btn btn-outline-success btn-sm" (click)="openTool('csv')">
+              Import CSV
+            </button>
+          </div>
+
+          <!-- ================= SEARCH TOOL ================= -->
+          <div *ngIf="adminToolOpen === 'search'">
+
+            <div class="fw-semibold mb-2">Search cards</div>
+
+            <!-- Search header -->
+            <div class="row g-2">
+
+              <!-- Row 1 -->
+              <div class="col-12">
+                <label class="form-label mb-1">Name</label>
+                <input
+                  class="form-control"
+                  [ngModel]="searchName"
+                  (ngModelChange)="onSearchNameChange($event)"
+                  placeholder="e.g. blue, dark magician..."
+                />
+                <div *ngIf="searchError" class="text-danger small mt-1">
+                  {{ searchError }}
+                </div>
+              </div>
+
+              <!-- Row 2 -->
+              <div class="col-12 d-flex align-items-center justify-content-between">
+                <div class="text-muted small">
+                  Page {{ searchPage + 1 }} / {{ searchTotalPages || 1 }}
+                </div>
+
+                <div class="d-flex gap-2" style="min-width:220px;">
+                  <button class="btn btn-outline-secondary btn-sm w-100"
+                          (click)="prevSearchPage()"
+                          [disabled]="searching || searchPage <= 0">
+                    Prev
+                  </button>
+
+                  <button class="btn btn-outline-secondary btn-sm w-100"
+                          (click)="nextSearchPage()"
+                          [disabled]="searching || searchPage + 1 >= searchTotalPages">
+                    Next
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            <div *ngIf="searching" class="text-muted mt-2">
+              Searching…
+            </div>
+
+            <!-- Results -->
+            <div *ngIf="!searching && searchResults.length > 0" class="mt-3">
+              <div class="list-group">
+
+                <div class="list-group-item"
+                     *ngFor="let r of searchResults"
+                     (click)="selectSearch(r)"
+                     style="cursor:pointer;"
+                     [class.active]="isSelectedSearch(r.id)">
+
+                  <div class="d-flex align-items-start gap-3">
+
+                    <img *ngIf="r.imageUrl"
+                         [src]="r.imageUrl"
+                         alt="card"
+                         style="width:48px;height:64px;object-fit:contain;"
+                         class="border rounded" />
+
+                    <div class="flex-grow-1">
+                      <div class="fw-semibold">{{ r.name }}</div>
+                      <div class="text-muted small">
+                        {{ r.humanReadableCardType ?? r.cardType ?? '' }}
+                        <span *ngIf="r.archetype"> • {{ r.archetype }}</span>
+                        • ID: {{ r.id }}
+                      </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                      <input class="form-control form-control-sm"
+                             type="number"
+                             min="1"
+                             style="width:90px"
+                             [(ngModel)]="searchMaxQty[r.id]" />
+
+                      <button class="btn btn-sm btn-primary"
+                              (click)="addFromSearch(r); $event.stopPropagation()">
+                        Add
+                      </button>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div *ngIf="!searching && searchName.trim().length >= 2 && searchResults.length === 0"
+                 class="text-muted mt-3">
+              No matches.
+            </div>
+
+            <button class="btn btn-link p-0 mt-3"
+                    (click)="adminToolOpen = null">
+              ← Back
+            </button>
+
+          </div>
+
+          <!-- ================= MANUAL TOOL ================= -->
+          <div *ngIf="adminToolOpen === 'manual'">
+
+            <div class="fw-semibold mb-2">Add by ID</div>
+
+            <div class="row g-2 align-items-end">
+
+              <div class="col-12 col-md-6">
+                <label class="form-label mb-1">Card ID</label>
+                <input class="form-control"
+                       type="number"
+                       [(ngModel)]="addCardId" />
+              </div>
+
+              <div class="col-12 col-md-3">
+                <label class="form-label mb-1">Max Qty</label>
+                <input class="form-control"
+                       type="number"
+                       min="1"
+                       [(ngModel)]="addMaxQty" />
+              </div>
+
+              <div class="col-12 col-md-3">
+                <button class="btn btn-primary w-100"
+                        (click)="addCard()">
+                  Add
+                </button>
+              </div>
+
+            </div>
+
+            <button class="btn btn-link p-0 mt-3"
+                    (click)="adminToolOpen = null">
+              ← Back
+            </button>
+
+          </div>
+
+        </div>
+      </div>
+
+<!-- ================= CSV TOOL ================= -->
+<div *ngIf="adminToolOpen === 'csv'">
+
+  <div class="fw-semibold mb-2">Import CSV</div>
+
+  <!-- Upload -->
+  <div class="mb-2">
+    <label class="form-label mb-1">Upload CSV</label>
+
+    <input
+      type="file"
+      class="form-control"
+      accept=".csv,text/csv,.txt,text/plain"
+      (change)="onCsvFileSelected($event)"
+      [disabled]="csvImporting"
+    />
+
+    <div class="text-muted small mt-1">
+      Upload a YGOProDeck export (.csv). We’ll parse the first number as cardId and the last number as qty.
+    </div>
+
+    <div *ngIf="csvFileName" class="text-muted small mt-1">
+      Selected: <strong>{{ csvFileName }}</strong>
+    </div>
+  </div>
+
+  <!-- Optional: preview + import button -->
+  <div class="d-flex flex-wrap gap-2 align-items-center mt-2">
+    <span class="badge text-bg-light border">
+      Lines: <strong class="ms-1">{{ csvPreview.lines }}</strong>
+    </span>
+    <span class="badge text-bg-light border">
+      Parsed: <strong class="ms-1">{{ csvPreview.parsed }}</strong>
+    </span>
+    <span class="badge text-bg-light border">
+      Ready: <strong class="ms-1">{{ csvPreview.valid }}</strong>
+    </span>
+  </div>
+
+  <div *ngIf="csvPreview.errors.length" class="alert alert-warning mt-2 mb-0">
+    <div class="fw-semibold mb-1">CSV issues:</div>
+    <ul class="mb-0">
+      <li *ngFor="let e of csvPreview.errors">{{ e }}</li>
+    </ul>
+  </div>
+
+  <div class="d-flex gap-2 mt-3">
+    <button class="btn btn-success btn-sm"
+            (click)="importCsv()"
+            [disabled]="csvImporting || csvPreview.valid === 0">
+      {{ csvImporting ? 'Importing…' : 'Import into cube' }}
+    </button>
+
+    <button class="btn btn-outline-secondary btn-sm"
+            (click)="clearCsv()"
+            [disabled]="csvImporting">
+      Clear
+    </button>
+
+    <button class="btn btn-link p-0 btn-sm"
+            (click)="adminToolOpen = null"
+            [disabled]="csvImporting">
+      ← Back
+    </button>
+  </div>
+
+  <div *ngIf="csvImportResult" class="mt-3">
+    <div class="alert alert-success py-2" *ngIf="csvImportResult.added > 0">
+      Added <strong>{{ csvImportResult.added }}</strong> cards.
+    </div>
+
+    <div class="alert alert-warning py-2" *ngIf="csvImportResult.failed.length > 0">
+      <div class="fw-semibold mb-1">Not found / failed:</div>
+      <ul class="mb-0">
+        <li *ngFor="let f of csvImportResult.failed">
+          CardId {{ f.cardId }} (qty {{ f.qty }}): {{ f.reason }}
+        </li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+    </div>
+
+    <!-- Filters (ALL ROLES) -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+<div class="d-flex align-items-center justify-content-between mb-2">
+  <div class="fw-semibold">Filters</div>
+
+  <div class="d-flex align-items-center gap-2">
+    <span class="text-muted small">
+      Showing {{ filteredCards.length }} of {{ cards.length }}
+      <span *ngIf="getActiveFilterCount() > 0" class="ms-1">
+        • <span class="badge text-bg-light border">{{ getActiveFilterCount() }} active</span>
+      </span>
+    </span>
+
+    <button class="btn btn-sm btn-outline-secondary" (click)="resetFilters()">
+      Reset
+    </button>
+
+    <button class="btn btn-sm btn-outline-secondary" (click)="toggleFilters()">
+      {{ filtersOpen ? 'Minimize' : 'Expand' }}
+    </button>
+  </div>
+</div>
+
+      <div *ngIf="filtersOpen" class="row g-2">
+        <div class="col-12 col-md-4">
+          <label class="form-label mb-1">Name</label>
+          <input class="form-control"
+                [(ngModel)]="filters.q"
+                (ngModelChange)="applyFilters()"
+                placeholder="e.g. blue, dark magician..." />
+        </div>
+
+        <div class="col-6 col-md-2">
+          <label class="form-label mb-1">Card Type</label>
+          <select class="form-select" [(ngModel)]="filters.cardType" (change)="applyFilters()">
+            <option value="">Any</option>
+            <option *ngFor="let t of cardTypeOptions" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+
+        <div class="col-6 col-md-2">
+          <label class="form-label mb-1">Attribute</label>
+          <select class="form-select" [(ngModel)]="filters.attribute" (change)="applyFilters()">
+            <option value="">Any</option>
+            <option *ngFor="let a of attributeOptions" [value]="a">{{ a }}</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-2">
+          <label class="form-label mb-1">Monster Type</label>
+          <select class="form-select" [(ngModel)]="filters.race" (change)="applyFilters()">
+            <option value="">Any</option>
+            <option *ngFor="let r of raceOptions" [value]="r">{{ r }}</option>
+          </select>
+        </div>
+
+        <div class="col-6 col-md-1">
+          <label class="form-label mb-1">Lvl ≥</label>
+          <input class="form-control" type="number" min="0"
+                [(ngModel)]="filters.levelMin" (ngModelChange)="applyFilters()" />
+        </div>
+
+        <div class="col-6 col-md-1">
+          <label class="form-label mb-1">Lvl ≤</label>
+          <input class="form-control" type="number" min="0"
+                [(ngModel)]="filters.levelMax" (ngModelChange)="applyFilters()" />
+        </div>
+
+        <div class="col-6 col-md-1">
+          <label class="form-label mb-1">ATK ≥</label>
+          <input class="form-control" type="number" min="0"
+                [(ngModel)]="filters.atkMin" (ngModelChange)="applyFilters()" />
+        </div>
+
+        <div class="col-6 col-md-1">
+          <label class="form-label mb-1">ATK ≤</label>
+          <input class="form-control" type="number" min="0"
+                [(ngModel)]="filters.atkMax" (ngModelChange)="applyFilters()" />
+        </div>
+
+        <div class="col-6 col-md-1">
+          <label class="form-label mb-1">DEF ≥</label>
+          <input class="form-control" type="number" min="0"
+                [(ngModel)]="filters.defMin" (ngModelChange)="applyFilters()" />
+        </div>
+
+        <div class="col-6 col-md-1">
+          <label class="form-label mb-1">DEF ≤</label>
+          <input class="form-control" type="number" min="0"
+                [(ngModel)]="filters.defMax" (ngModelChange)="applyFilters()" />
+        </div>
+
+        <div class="col-6 col-md-2">
+          <label class="form-label mb-1">Sort</label>
+          <select class="form-select" [(ngModel)]="filters.sortKey" (change)="applyFilters()">
+            <option value="name">Name</option>
+            <option value="atk">ATK</option>
+            <option value="def">DEF</option>
+            <option value="level">Level</option>
+          </select>
+        </div>
+
+        <div class="col-6 col-md-2">
+          <label class="form-label mb-1">Direction</label>
+          <select class="form-select" [(ngModel)]="filters.sortDir" (change)="applyFilters()">
+            <option value="asc">Asc</option>
+            <option value="desc">Desc</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- List view -->
+    <div *ngIf="viewMode === 'list'" class="list-group">
+      <button
+        type="button"
+        class="list-group-item list-group-item-action"
+        *ngFor="let c of filteredCards"
+        (click)="select(c)"
+        [class.active]="isSelected(c.cardId)"
+        [ngStyle]="getRowStyleForCard(c)"
+      >
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <div class="fw-semibold">
+              {{ c.name ?? ('Card #' + c.cardId) }}
+            </div>
+            <div class="text-muted small">
+              Max: {{ c.maxQty }}
+            </div>
+          </div>
+
+          <span class="badge"
+                [class.text-bg-danger]="c.banned"
+                [class.text-bg-secondary]="!c.banned">
+            {{ c.banned ? 'BANNED' : 'OK' }}
+          </span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Image grid view -->
+    <div *ngIf="viewMode === 'image'" class="row g-2">
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2" *ngFor="let c of filteredCards">
+        <div
+          class="position-relative shadow-sm rounded overflow-hidden"
+          style="cursor:pointer;"
+          (click)="select(c)"
+          [class.border]="isSelected(c.cardId)"
+          [class.border-primary]="isSelected(c.cardId)"
+        >
+          <img
+            *ngIf="c.imageUrl"
+            [src]="c.imageUrl"
+            class="w-100 d-block"
+            alt="card"
+            style="aspect-ratio: 3 / 4; object-fit: contain;"
+          />
+
+          <div *ngIf="!c.imageUrl"
+               class="d-flex align-items-center justify-content-center text-muted"
+               style="aspect-ratio: 3 / 4;">
+            No image
+          </div>
+
+          <img
+            *ngIf="c.banned"
+            src="assets/icons/banned.svg"
+            alt="Banned"
+            class="position-absolute top-0 end-0 mx-2 my-1 banned-icon"
+          />
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: details panel -->
+  <div class="col-12 col-lg-4">
+<div class="card shadow-sm" *ngIf="selected || selectedSearch">
+  <div class="card-body d-flex flex-column">
+
+    <!-- POOL selected -->
+    <ng-container *ngIf="selected as s; else searchSelected">
+
+      <div class="text-center mb-3">
+        <img *ngIf="s.imageUrl"
+             [src]="s.imageUrl"
+             class="img-fluid rounded border"
+             alt="card image"
+             style="max-height: 420px;" />
+        <div *ngIf="!s.imageUrl" class="text-muted">No image.</div>
+      </div>
+
+      <div class="mb-2">
+        <div class="fw-semibold">{{ s.name ?? ('Card #' + s.cardId) }}</div>
+        <div class="text-muted small">{{ s.humanReadableCardType ?? s.cardType ?? '' }}</div>
+        <div class="text-muted small" *ngIf="s.archetype">{{ s.archetype }}</div>
+      </div>
+
+      <div class="mb-2 small text-muted">
+        <div>ID: {{ s.cardId }}</div>
+        <div>Max Qty: {{ s.maxQty }}</div>
+        <div>
+          Status:
+          <span class="badge ms-1"
+                [class.text-bg-danger]="s.banned"
+                [class.text-bg-secondary]="!s.banned">
+            {{ s.banned ? 'BANNED' : 'OK' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="border rounded p-2 small flex-grow-1 mb-3"
+           style="overflow-y:auto; background:#fafafa;">
+        {{ s.description ?? 'No description.' }}
+      </div>
+
+        <!-- Stats -->
+        <div
+          *ngIf="selected.atk != null || selected.def != null || selected.level != null"
+          class="d-flex justify-content-between align-items-center small text-muted border-top pt-2 mt-2 pb-4"
+        >
+
+          <!-- Level / Rank -->
+          <div *ngIf="selected.level != null">
+            ⭐ Level: <strong>{{ selected.level }}</strong>
+          </div>
+
+          <!-- ATK -->
+          <div *ngIf="selected.atk != null">
+            ⚔️ ATK: <strong>{{ selected.atk }}</strong>
+          </div>
+
+          <!-- DEF (not for Links usually) -->
+          <div *ngIf="selected.def != null">
+            🛡️ DEF: <strong>{{ selected.def }}</strong>
+          </div>
+
+        </div>
+
+      <!-- Admin actions (pool) -->
+      <div *ngIf="isAdmin()" class="mt-auto d-grid gap-2">
+        <div class="input-group">
+          <span class="input-group-text">Max</span>
+          <input class="form-control" type="number" min="1"
+                 [(ngModel)]="editMaxQty[s.cardId]" />
+          <button class="btn btn-outline-primary"
+                  (click)="saveMaxQty(s.cardId)">
+            Save
+          </button>
+        </div>
+
+        <input class="form-control form-control-sm"
+               placeholder="Ban reason (optional)"
+               [(ngModel)]="banReason[s.cardId]" />
+
+        <button class="btn"
+                [class.btn-warning]="!s.banned"
+                [class.btn-success]="s.banned"
+                (click)="toggleBan(s.cardId, s.banned)">
+          {{ s.banned ? 'Unban' : 'Ban' }}
+        </button>
+
+        <button class="btn btn-outline-danger"
+                (click)="remove(s.cardId)">
+          Remove from cube
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- SEARCH selected -->
+    <ng-template #searchSelected>
+      <ng-container *ngIf="selectedSearch as s2">
+
+        <div class="text-center mb-3">
+          <img *ngIf="s2.imageUrl"
+               [src]="s2.imageUrl"
+               class="img-fluid rounded border"
+               alt="card image"
+               style="max-height: 420px;" />
+          <div *ngIf="!s2.imageUrl" class="text-muted">No image.</div>
+        </div>
+
+        <div class="mb-2">
+          <div class="fw-semibold">{{ s2.name }}</div>
+          <div class="text-muted small">{{ s2.humanReadableCardType ?? s2.cardType ?? '' }}</div>
+          <div class="text-muted small" *ngIf="s2.archetype">{{ s2.archetype }}</div>
+        </div>
+
+        <div class="mb-2 small text-muted">
+          <div>ID: {{ s2.id }}</div>
+        </div>
+
+        <div class="flex-grow-1"></div>
+
+        <!-- Admin action (search): qty + add -->
+        <div *ngIf="isAdmin()" class="mt-auto d-grid gap-2">
+          <div class="input-group">
+            <span class="input-group-text">Qty</span>
+            <input class="form-control" type="number" min="1"
+                   [(ngModel)]="searchMaxQty[s2.id]" />
+            <button class="btn btn-primary" (click)="addSelectedSearch()">
+              Add to cube
+            </button>
+          </div>
+        </div>
+
+      </ng-container>
+    </ng-template>
+
+  </div>
+</div>
+
+<div *ngIf="!selected && !selectedSearch" class="alert alert-secondary">
+  Select a card to see details.
+</div>
+
+  </div>
+</div>

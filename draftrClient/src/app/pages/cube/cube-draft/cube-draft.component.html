@@ -1,0 +1,395 @@
+<!-- cube-draft.component.html -->
+<div class="container-fluid py-3">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h3 class="mb-0">Draft</h3>
+      <div class="text-muted small">Manage and join live draft sessions.</div>
+    </div>
+
+    <button class="btn btn-outline-secondary btn-sm" (click)="refresh()" [disabled]="loading">
+      Refresh
+    </button>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger py-2">{{ error }}</div>
+  <div *ngIf="success" class="alert alert-success py-2">{{ success }}</div>
+
+  <!-- ADMIN: Create Lobby -->
+  <div *ngIf="isAdmin" class="card mb-3">
+    <div class="card-header fw-semibold">Create Draft Session</div>
+    <div class="card-body">
+      <div class="row g-2 align-items-end">
+        <div class="col-6 col-md-4">
+          <label class="form-label small">Cards / Player</label>
+          <input type="number"
+                 class="form-control form-control-sm"
+                 [(ngModel)]="form.draftSize"
+                 min="1" />
+        </div>
+
+        <div class="col-6 col-md-4">
+          <label class="form-label small">Pack Size</label>
+          <input type="number"
+                 class="form-control form-control-sm"
+                 [(ngModel)]="form.packSize"
+                 min="1" />
+        </div>
+
+        <div class="col-12 col-md-4">
+          <button class="btn btn-primary btn-sm w-100" (click)="createLobby()" [disabled]="loading">
+            Create Lobby
+          </button>
+        </div>
+      </div>
+
+      <div class="text-muted small mt-2">
+        Note: validation is enforced on the backend. Draft size must fit your cube pool.
+      </div>
+    </div>
+  </div>
+
+  <!-- Open Sessions -->
+  <div class="card">
+    <div class="card-header fw-semibold">Open Sessions</div>
+
+    <div class="card-body" *ngIf="loading">
+      <div class="text-muted">Loading…</div>
+    </div>
+
+    <div class="card-body" *ngIf="!loading && sessions.length === 0">
+      <div class="text-muted">No open sessions.</div>
+    </div>
+
+    <div class="table-responsive" *ngIf="!loading && sessions.length > 0">
+      <table class="table table-sm mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Status</th>
+            <th>Config</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of sessions">
+            <td>#{{ s.draftSessionId }}</td>
+            <td>
+              <span class="badge"
+                    [ngClass]="{
+                      'text-bg-secondary': s.status === 'LOBBY',
+                      'text-bg-success': s.status === 'RUNNING'
+                    }">
+                {{ s.status }}
+              </span>
+            </td>
+
+            <td class="small text-muted">
+              cards/player {{ s.draftSize }},
+              packSize {{ s.packSize }}
+            </td>
+
+            <td class="text-end">
+              <ng-container *ngIf="isJoined(s.draftSessionId); else notJoined">
+                <span class="badge text-bg-primary">Joined</span>
+              </ng-container>
+
+              <ng-template #notJoined>
+                <button class="btn btn-outline-primary btn-sm me-2"
+                        (click)="join(s)"
+                        [disabled]="loading">
+                  Join
+                </button>
+              </ng-template>
+
+              <button *ngIf="canCancel(s)"
+                      class="btn btn-outline-danger btn-sm ms-2"
+                      (click)="cancel(s)"
+                      [disabled]="loading">
+                {{ s.status === 'RUNNING' ? 'Cancel' : 'Close' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+        <!-- Lobby -->
+      <div *ngIf="joinedDraftId && lobbySession" class="card mt-3">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div class="fw-semibold">
+            Lobby — Session #{{ lobbySession.draftSessionId }}
+            <div class="text-muted small mt-1" *ngIf="lobbySession">
+              Owner: {{ isLobbyOwner() ? 'You' : lobbyOwnerName() }}
+            </div>
+            <span class="badge ms-2"
+                  [ngClass]="{
+                    'text-bg-secondary': lobbySession.status === 'LOBBY',
+                    'text-bg-success': lobbySession.status === 'RUNNING'
+                  }">
+              {{ lobbySession.status }}
+            </span>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary btn-sm"
+                    (click)="toggleReady()"
+                    [disabled]="loading || readying || lobbySession.status !== 'LOBBY'">
+              {{ myPlayer()?.ready ? 'Unready' : 'Ready' }}
+            </button>
+
+            <button *ngIf="isLobbyOwner()"
+                    class="btn btn-success btn-sm"
+                    (click)="startDraft()"
+                    [disabled]="starting || !canStart()">
+              Start
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body">
+
+          <!-- Players -->
+          <div class="text-muted small mb-2">
+            Players joined: {{ lobbyPlayers.length }}
+          </div>
+
+          <ul class="list-group list-group-flush mb-3">
+            <li class="list-group-item d-flex justify-content-between align-items-center"
+                *ngFor="let p of lobbyPlayers">
+              <span>{{ p.username }}</span>
+              <span class="badge" [ngClass]="p.ready ? 'text-bg-success' : 'text-bg-secondary'">
+                {{ p.ready ? 'Ready' : 'Not Ready' }}
+              </span>
+            </li>
+          </ul>
+
+          <!-- COMPLETED: Draft Summary -->
+<div *ngIf="lobbySession?.status === 'COMPLETED'" class="mt-3">
+
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <div class="fw-semibold">Draft Summary</div>
+    <div class="text-muted small">Cards drafted: {{ myPicks.length }}</div>
+  </div>
+
+  <div class="row g-3">
+    <!-- LEFT: grid -->
+    <div class="col-12 col-lg-8">
+      <div *ngIf="myPicks.length === 0" class="text-muted small">
+        No picks found.
+      </div>
+
+      <div *ngIf="myPicks.length" class="row g-2">
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2"
+             *ngFor="let c of myPicks; trackBy: trackByPackCardId">
+          <div class="position-relative shadow-sm rounded overflow-hidden"
+               style="cursor:pointer;"
+               (click)="selectSummaryCard(c)"
+               [class.border]="summarySelected?.draftPackCardId === c.draftPackCardId"
+               [class.border-primary]="summarySelected?.draftPackCardId === c.draftPackCardId">
+
+            <img *ngIf="c.imageUrl"
+                 [src]="c.imageUrl"
+                 class="w-100 d-block"
+                 alt="card"
+                 style="aspect-ratio: 3 / 4; object-fit: contain;" />
+
+            <div *ngIf="!c.imageUrl"
+                 class="d-flex align-items-center justify-content-center text-muted"
+                 style="aspect-ratio: 3 / 4;">
+              No image
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: viewer -->
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm" *ngIf="summarySelected; else noSummarySelected">
+        <div class="card-body d-flex flex-column">
+
+          <div class="text-center mb-3">
+            <img *ngIf="summarySelected.imageUrl"
+                 [src]="summarySelected.imageUrl"
+                 class="img-fluid rounded border"
+                 alt="card image"
+                 style="max-height: 420px;" />
+          </div>
+
+          <div class="mb-2">
+            <div class="fw-semibold">
+              {{ summarySelected.name ?? ('Card #' + summarySelected.cardId) }}
+            </div>
+            <div class="text-muted small">
+              {{ summarySelected.humanReadableCardType ?? '' }}
+            </div>
+          </div>
+
+          <div class="border rounded p-2 small flex-grow-1 mb-3"
+               style="overflow-y:auto; background:#fafafa;">
+            {{ summarySelected.description ?? 'No description.' }}
+          </div>
+
+        </div>
+      </div>
+
+      <ng-template #noSummarySelected>
+        <div class="alert alert-secondary">
+          Click a card to view details.
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+</div>
+
+
+          <!-- RUNNING: Pack draft UI -->
+          <div *ngIf="lobbySession?.status === 'RUNNING'" class="mt-3">
+
+            <div class="row g-3">
+              <!-- LEFT: image grid -->
+              <div class="col-12 col-lg-8">
+
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div class="fw-semibold">Your Pack</div>
+                  <div class="text-muted small" *ngIf="myPack">
+                    Round {{ myPack.roundNo }} · {{ myPack.direction }}
+                  </div>
+                </div>
+
+                <div *ngIf="!myPack?.draftPackId && !(myPack?.cards?.length)" class="alert alert-secondary py-2">
+                  Waiting for other players to pick…
+                </div>
+
+                <div *ngIf="myPack?.draftPackId && !(myPack?.cards?.length)" class="text-muted small">
+                  No cards left in this pack.
+                </div>
+
+                <div *ngIf="myPack?.cards?.length" class="row g-2">
+                  <div class="col-6 col-sm-4 col-md-3 col-lg-2"
+                    *ngFor="let c of myPack!.cards; trackBy: trackByPackCardId">
+
+                    <div class="position-relative shadow-sm rounded overflow-hidden"
+                         style="cursor:pointer;"
+                         (click)="selectPackCard(c)"
+                         [class.border]="isPackSelected(c.draftPackCardId)"
+                         [class.border-primary]="isPackSelected(c.draftPackCardId)">
+
+                      <img *ngIf="c.imageUrl"
+                           [src]="c.imageUrl"
+                           class="w-100 d-block"
+                           alt="card"
+                           style="aspect-ratio: 3 / 4; object-fit: contain;" />
+
+                      <div *ngIf="!c.imageUrl"
+                           class="d-flex align-items-center justify-content-center text-muted"
+                           style="aspect-ratio: 3 / 4;">
+                        No image
+                      </div>
+
+                      <span class="position-absolute bottom-0 end-0 m-1 badge text-bg-dark">
+                        slot {{ c.slotNo }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- RIGHT: viewer -->
+              <div class="col-12 col-lg-4">
+
+                <div class="card shadow-sm" *ngIf="selectedPackCard; else noPackSelected">
+                  <div class="card-body d-flex flex-column">
+
+                    <div class="text-center mb-3">
+                      <img *ngIf="selectedPackCard.imageUrl"
+                           [src]="selectedPackCard.imageUrl"
+                           class="img-fluid rounded border"
+                           alt="card image"
+                           style="max-height: 420px;" />
+                      <div *ngIf="!selectedPackCard.imageUrl" class="text-muted">No image.</div>
+                    </div>
+
+                    <div class="mb-2">
+                      <div class="fw-semibold">
+                        {{ selectedPackCard.name ?? ('Card #' + selectedPackCard.cardId) }}
+                      </div>
+                      <div class="text-muted small">
+                        {{ selectedPackCard.humanReadableCardType ?? '' }}
+                      </div>
+                    </div>
+
+                    <div class="mb-2 small text-muted">
+                      <div>ID: {{ selectedPackCard.cardId }}</div>
+                      <div>Slot: {{ selectedPackCard.slotNo }}</div>
+                    </div>
+
+                    <div class="border rounded p-2 small flex-grow-1 mb-3"
+                         style="overflow-y:auto; background:#fafafa;">
+                      {{ selectedPackCard.description ?? 'No description.' }}
+                    </div>
+
+                    <div *ngIf="selectedPackCard.level != null || selectedPackCard.atk != null || selectedPackCard.def != null"
+                         class="d-flex justify-content-between align-items-center small text-muted border-top pt-2 mt-2 pb-3">
+                      <div *ngIf="selectedPackCard.level != null">
+                        ⭐ Level: <strong>{{ selectedPackCard.level }}</strong>
+                      </div>
+                      <div *ngIf="selectedPackCard.atk != null">
+                        ⚔️ ATK: <strong>{{ selectedPackCard.atk }}</strong>
+                      </div>
+                      <div *ngIf="selectedPackCard.def != null">
+                        🛡️ DEF: <strong>{{ selectedPackCard.def }}</strong>
+                      </div>
+                    </div>
+
+                    <div class="mt-auto d-grid gap-2">
+                      <button class="btn btn-primary"
+                            (click)="confirmPick()"
+                            [disabled]="picking || !selectedPackCard || !myPack?.draftPackId">
+                      Select (confirm)
+                    </button>
+
+                      <button class="btn btn-outline-secondary"
+                              (click)="clearPackSelection()"
+                              [disabled]="picking">
+                        Clear
+                      </button>
+                    </div>
+
+                  </div>
+                </div>
+
+                <ng-template #noPackSelected>
+                  <div class="alert alert-secondary">
+                    Select a card to see details.
+                  </div>
+                </ng-template>
+
+              </div>
+            </div>
+
+             <!-- My Picks So Far -->
+            <div class="mt-4" *ngIf="lobbySession?.status === 'RUNNING'">
+              <div class="fw-semibold mb-2">My Picks ({{ myPicks.length }})</div>
+
+              <div *ngIf="myPicks.length === 0" class="text-muted small">
+                No picks yet.
+              </div>
+
+              <div class="d-flex gap-2 flex-wrap" *ngIf="myPicks.length">
+                <img *ngFor="let c of myPicks"
+                    [src]="c.imageUrl"
+                    class="rounded border"
+                    style="width: 72px; height: 96px; object-fit: contain; background: #fff;"
+                    alt="picked card" />
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+</div>

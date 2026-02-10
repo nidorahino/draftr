@@ -1,0 +1,120 @@
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+      <div>
+        <h2 class="h5 mb-1">Cube Settings</h2>
+        <div class="text-muted small">Edit cube name and max players.</div>
+      </div>
+
+      <!-- Right-side actions -->
+      <div class="d-flex gap-2 align-items-center">
+        <!-- OWNER/ADMIN: Edit -->
+        <button
+          *ngIf="!editing && isOwnerOrAdmin()"
+          type="button"
+          class="btn btn-outline-primary"
+          (click)="startEdit()"
+          [disabled]="deleting"
+        >
+          Edit
+        </button>
+
+        <!-- MEMBER: Leave -->
+        <button
+          *ngIf="!editing && isMemberOnly()"
+          type="button"
+          class="btn btn-outline-danger"
+          (click)="leaveCube()"
+          [disabled]="deleting"
+        >
+          {{ deleting ? 'Leaving…' : 'Leave cube' }}
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+    <div *ngIf="success" class="alert alert-success">Saved.</div>
+
+    <!-- VIEW MODE -->
+    <div *ngIf="!editing" class="row g-3">
+      <div class="col-12 col-md-8">
+        <div class="text-muted small mb-1">Cube name</div>
+        <div class="fw-semibold">{{ model.name }}</div>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <div class="text-muted small mb-1">Max players</div>
+        <div class="fw-semibold">{{ model.maxPlayers }}</div>
+      </div>
+
+      <!-- OWNER/ADMIN: Archive section -->
+      <div class="col-12" *ngIf="isOwnerOrAdmin()">
+        <hr />
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-2">
+          <div>
+            <div class="fw-semibold">Danger zone</div>
+            <div class="text-muted small">
+              Archiving hides the cube from lists. Data remains in case you unarchive later.
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-outline-danger"
+            (click)="archiveCube()"
+            [disabled]="deleting"
+          >
+            {{ deleting ? 'Archiving…' : 'Archive cube' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDIT MODE -->
+    <form *ngIf="editing" class="row g-3" (ngSubmit)="save()" #f="ngForm">
+      <div class="col-12 col-md-8">
+        <label class="form-label">Cube name</label>
+        <input
+          class="form-control"
+          name="name"
+          [(ngModel)]="model.name"
+          required
+          minlength="3"
+          maxlength="80"
+        />
+      </div>
+
+      <div class="col-12 col-md-4">
+        <label class="form-label">Max players</label>
+        <input
+          class="form-control"
+          type="number"
+          name="maxPlayers"
+          [(ngModel)]="model.maxPlayers"
+          required
+          min="2"
+          max="16"
+        />
+      </div>
+
+      <div class="col-12 d-flex gap-2">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="cancelEdit()"
+          [disabled]="saving || deleting"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="saving || deleting || f.invalid"
+        >
+          {{ saving ? 'Saving…' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

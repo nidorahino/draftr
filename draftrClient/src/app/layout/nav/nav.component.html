@@ -1,0 +1,40 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-semibold" routerLink="/">C U B E D</a>
+
+    <div class="d-flex gap-2">
+<!-- <button
+  class="btn btn-outline-secondary btn-sm"
+  (click)="theme.toggle()"
+>
+  🌙
+</button> -->
+      <!-- Logged OUT -->
+      <a class="btn btn-outline-primary"
+         routerLink="/login"
+         *ngIf="!auth.isLoggedIn()">
+        Login
+      </a>
+
+      <a class="btn btn-primary"
+         routerLink="/register"
+         *ngIf="!auth.isLoggedIn()">
+        Register
+      </a>
+
+      <!-- Logged IN -->
+      <a class="btn btn-outline-primary"
+         routerLink="/my-cubes"
+         *ngIf="auth.isLoggedIn()">
+        My Cubes
+      </a>
+
+      <button class="btn btn-outline-danger"
+              (click)="logout()"
+              *ngIf="auth.isLoggedIn()">
+        Logout
+      </button>
+
+    </div>
+  </div>
+</nav>
