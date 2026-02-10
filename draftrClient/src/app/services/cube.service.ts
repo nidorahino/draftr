@@ -40,11 +40,11 @@ export class CubeService {
   }
 
   updateCube(cubeId: number, req: { name?: string; maxPlayers?: number }) {
-    return this.http.put<any>(`/api/cubes/${cubeId}`, req);
+    return this.http.put<any>(`${this.API}/${cubeId}`, req);
   }
 
   createCube(req: { name: string; maxPlayers: number }) {
-    return this.http.post('/api/cubes', req);
+    return this.http.post(`${this.API}`, req);
   }
 
   // ---- Cards (read)
