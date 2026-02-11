@@ -1,104 +1,135 @@
-<div class="d-flex align-items-center justify-content-between mb-3">
-  <h1 class="h3 mb-0">My Cubes</h1>
+<div class="cubes-shell">
+  <!-- subtle background like landing -->
+  <div class="cubes-bg" aria-hidden="true"></div>
 
-<button
-  type="button"
-  class="cube-add-btn"
-  (click)="toggleCreate()"
-  title="Create Cube"
->
-  <img
-    src="assets/icons/add_cube.svg"
-    alt="Create cube"
-    class="cube-add-icon"
-  />
-</button>
+  <!-- header -->
+  <header class="cubes-head">
+    <div class="cubes-title">
+      <div class="cubes-kicker">MY</div>
+      <h1 class="cubes-h1">CUBES</h1>
+    </div>
+  </header>
 
-</div>
-
-<div *ngIf="showCreate" class="card shadow-sm mb-3">
-  <div class="card-body">
-    <form (ngSubmit)="createCube()" #f="ngForm" class="row g-2 align-items-end">
-      <div class="col-12 col-md-7">
-        <label class="form-label">Cube name</label>
-        <input
-          class="form-control"
-          name="name"
-          [(ngModel)]="createModel.name"
-          required
-          minlength="3"
-          maxlength="80"
-          placeholder="e.g. Friday Night Cube"
-        />
-      </div>
-
-      <div class="col-12 col-md-3">
-        <label class="form-label">Max players</label>
-        <input
-          class="form-control"
-          type="number"
-          name="maxPlayers"
-          [(ngModel)]="createModel.maxPlayers"
-          required
-          min="2"
-          max="16"
-        />
-      </div>
-
-      <div class="col-12 col-md-2 d-grid">
+  <!-- create panel (glass) -->
+  <section class="create-wrap" *ngIf="showCreate">
+    <div class="create-card">
+      <div class="create-top">
+        <div class="create-label">CREATE CUBE</div>
         <button
-          class="btn btn-success"
-          type="submit"
-          [disabled]="creating || f.invalid"
+          type="button"
+          class="create-close"
+          (click)="toggleCreate()"
+          aria-label="Close"
+          title="Close"
         >
-          {{ creating ? 'Creating…' : 'Create' }}
+          ✕
         </button>
       </div>
 
-      <div class="col-12" *ngIf="createError">
-        <div class="alert alert-danger mb-0">{{ createError }}</div>
-      </div>
-    </form>
-  </div>
-</div>
-
-<div *ngIf="loading" class="text-muted">Loading…</div>
-
-<div *ngIf="error" class="alert alert-danger">
-  {{ error }}
-</div>
-
-<div *ngIf="!loading && !error && cubes.length === 0" class="alert alert-info">
-  You don't have any cubes yet.
-</div>
-
-<div class="row g-3" *ngIf="!loading && !error && cubes.length > 0">
-<div class="col-6 col-md-4 col-lg-3 col-xl-2" *ngFor="let c of cubes">
-
-  <div class="cube-card-wrapper">
-    <div class="card cube-card shadow-sm">
-
-      <div class="card-body position-relative">
-        <a
-          class="stretched-link"
-          [routerLink]="['/cubes', c.cubeId]"
-          aria-label="Open cube"
-        ></a>
-
-        <div class="d-flex justify-content-between align-items-start">
-          <h2 class="h5 mb-1">{{ c.name }}</h2>
-          <span class="badge text-bg-secondary">{{ c.role }}</span>
+      <form (ngSubmit)="createCube()" #f="ngForm" class="create-form">
+        <div class="field">
+          <label class="field-label">Cube name</label>
+          <input
+            class="field-input"
+            name="name"
+            [(ngModel)]="createModel.name"
+            required
+            minlength="3"
+            maxlength="80"
+            placeholder="e.g. Friday Night Cube"
+          />
         </div>
 
-        <div class="text-muted small mb-2">
-          Max players: {{ c.maxPlayers }}
+        <div class="field">
+          <label class="field-label">Max players</label>
+          <input
+            class="field-input"
+            type="number"
+            name="maxPlayers"
+            [(ngModel)]="createModel.maxPlayers"
+            required
+            min="2"
+            max="16"
+          />
         </div>
 
-        <div class="text-muted small">
-          Created: {{ c.createdAt | date: 'medium' }}
+        <button
+          class="create-submit"
+          type="submit"
+          [disabled]="creating || f.invalid"
+        >
+          <span class="create-submit-text">{{
+            creating ? 'CREATING…' : 'CREATE'
+          }}</span>
+        </button>
+
+        <div class="create-error" *ngIf="createError">
+          {{ createError }}
         </div>
-      </div>
+      </form>
     </div>
-    </div>
+  </section>
+
+  <!-- states -->
+  <div class="state" *ngIf="loading">LOADING…</div>
+
+  <div class="state state-error" *ngIf="error">
+    {{ error }}
   </div>
+
+  <div
+    class="state state-empty"
+    *ngIf="!loading && !error && cubes.length === 0 && !showCreate"
+  >
+    NO CUBES YET. CLICK “CREATE CUBE”.
+  </div>
+
+  <!-- grid (always shows when not loading/error so the create tile appears even at 0 cubes) -->
+  <section class="cube-grid" *ngIf="!loading && !error">
+  <!-- Create tile -->
+  <article class="cube-tile cube-tile-create">
+  <button
+    type="button"
+    class="tile-link tile-create-btn"
+    (click)="toggleCreate()"
+    aria-label="Create cube"
+    title="Create Cube"
+  ></button>
+
+  <div class="tile-create-center">
+    <div class="tile-create-plus">+</div>
+    <div class="tile-create-text">CREATE CUBE</div>
+  </div>
+
+  <div class="tile-glow" aria-hidden="true"></div>
+</article>
+
+
+    <!-- Existing cubes -->
+    <article class="cube-tile" *ngFor="let c of cubes">
+      <a
+        class="tile-link"
+        [routerLink]="['/cubes', c.cubeId]"
+        aria-label="Open cube"
+      ></a>
+
+      <div class="tile-top">
+        <div class="tile-name" [title]="c.name">{{ c.name }}</div>
+        <span class="tile-role">{{ c.role }}</span>
+      </div>
+
+      <div class="tile-meta">
+        <div class="tile-row">
+          <span class="tile-key">MAX</span>
+          <span class="tile-val">{{ c.maxPlayers }}</span>
+        </div>
+        <div class="tile-row">
+          <span class="tile-key">CREATED</span>
+          <span class="tile-val">{{ c.createdAt | date: 'mediumDate' }}</span>
+        </div>
+      </div>
+
+      <div class="tile-glow" aria-hidden="true"></div>
+    </article>
+  </section>
 </div>

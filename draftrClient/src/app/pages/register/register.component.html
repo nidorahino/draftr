@@ -1,29 +1,37 @@
-<h1 class="h3 mb-3">Register</h1>
+<div class="auth-shell">
+  <div class="auth-card">
+    <h1 class="auth-title">REGISTER</h1>
 
-<div class="card border-0 shadow-sm">
-  <div class="card-body">
     <form (ngSubmit)="submit()" [formGroup]="form" class="d-grid gap-3">
       <div>
-        <label class="form-label">Username</label>
-        <input class="form-control" formControlName="username" />
+        <label class="form-label auth-label">Username</label>
+        <input class="form-control auth-input" formControlName="username" />
       </div>
 
       <div>
-        <label class="form-label">Email</label>
-        <input class="form-control" formControlName="email" />
+        <label class="form-label auth-label">Email</label>
+        <input class="form-control auth-input" formControlName="email" />
       </div>
 
       <div>
-        <label class="form-label">Password</label>
-        <input class="form-control" type="password" formControlName="password" />
-        <div class="form-text">Minimum 8 characters.</div>
+        <label class="form-label auth-label">Password</label>
+        <input
+          class="form-control auth-input"
+          type="password"
+          formControlName="password"
+        />
+        <div class="auth-help">Minimum 8 characters.</div>
       </div>
 
-      <div *ngIf="error" class="alert alert-danger mb-0">{{ error }}</div>
+      <div *ngIf="error" class="auth-error">{{ error }}</div>
 
-      <button class="btn btn-primary" type="submit">Create account</button>
-      <div class="text-muted">
-        Already have an account? <a routerLink="/login">Login</a>
+      <button class="btn btn-primary auth-submit" type="submit">
+        Create account
+      </button>
+
+      <div class="auth-footer">
+        <span class="auth-muted">Already have an account?</span>
+        <a routerLink="/login">Login</a>
       </div>
     </form>
   </div>

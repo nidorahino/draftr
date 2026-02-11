@@ -3,5 +3,54 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1050; /* above content */
+  z-index: 1050;
+
+  /* closer to landing vibe */
+  background: rgba(11, 15, 22, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+
+/* Brand */
+.app-navbar .navbar-brand {
+  color: rgba(232, 238, 252, 0.9);
+}
+
+.app-navbar .navbar-brand:hover {
+  color: #ffffff;
+}
+
+/* Make Bootstrap buttons readable on dark */
+.app-navbar .btn-outline-primary {
+  color: #9bb6ff;
+  border-color: #9bb6ff;
+}
+
+.app-navbar .btn-outline-primary:hover {
+  background: rgba(155, 182, 255, 0.15);
+  color: #ffffff;
+}
+
+.app-navbar .btn-primary {
+  background: #5a78ff;
+  border-color: #5a78ff;
+}
+
+.app-navbar .btn-primary:hover {
+  background: #6b87ff;
+  border-color: #6b87ff;
+}
+
+.app-navbar .btn-outline-danger {
+  color: #ff7fb8;
+  border-color: #ff7fb8;
+}
+
+.app-navbar .btn-outline-danger:hover {
+  background: rgba(255, 127, 184, 0.15);
+  color: #ffffff;
 }

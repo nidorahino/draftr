@@ -196,3 +196,11 @@ a:hover {
 :root[data-theme="dark"] .card-selected {
   box-shadow: 0 0 0 2px rgba(255,255,255,0.12);
 }
+
+.app-page {
+  padding-top: var(--nav-h);
+  min-height: 100vh;
+
+  /* make the padding strip dark so the nav blends the same */
+  background: #0b0f16;
+}
