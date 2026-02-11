@@ -41,3 +41,9 @@ Thumbs.db
 
 # Spring
 **/logs/
+
+# images
+draftrserver/images/
+
+# Local Spring profile
+draftrserver/src/main/resources/application-local.properties

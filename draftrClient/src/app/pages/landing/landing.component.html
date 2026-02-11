@@ -1,49 +1,28 @@
-<div class="landing-hero p-4 p-md-5 rounded-3 border">
-
-  <!-- Brand header -->
-  <div class="landing-brand text-center mb-4">
+<div class="landing-shell">
+  <!-- top center logo -->
+  <header class="landing-top">
     <img
-      class="landing-logo mb-2"
+      class="landing-logo"
       src="assets/logos/yugioh_logo.png"
       alt="Yu-Gi-Oh"
       loading="lazy"
     />
-    <div class="landing-title">CUBED</div>
-  </div>
+  </header>
 
-  <div class="landing-content">
+  <!-- center CUBED + lower PRESS ENTER (independent positioning) -->
+  <main class="landing-center" aria-label="Landing">
+    <div class="landing-title-wrap">
+      <div class="landing-title-float">CUBED</div>
+    </div>
 
-    <!-- Logged OUT view -->
-    <ng-container *ngIf="!auth.isLoggedIn(); else loggedInView">
- 
-      <p class="text-muted mb-4">
-        Build and manage your Yu-Gi-Oh draft cubes. Private, small group friendly.
-      </p>
+    <div class="landing-enter">PRESS&nbsp;ENTER</div>
+  </main>
 
-      <div class="d-flex flex-wrap gap-2 justify-content-center">
-        <a class="btn btn-primary" routerLink="/register">Get started</a>
-        <a class="btn btn-outline-primary" routerLink="/login">Sign in</a>
-      </div>
-    </ng-container>
-
-    <!-- Logged IN view -->
-    <ng-template #loggedInView>
-      <h1 class="display-6 fw-semibold mb-2">Welcome back.</h1>
-
-      <p class="text-muted mb-4">
-        Your draft cubes are ready.
-      </p>
-
-      <div class="d-flex flex-wrap gap-2 justify-content-center">
-        <button class="btn btn-primary" (click)="goToDashboard()">
-          Go to My Cubes
-        </button>
-
-        <button class="btn btn-outline-secondary" (click)="auth.logout()">
-          Log out
-        </button>
-      </div>
-    </ng-template>
-
-  </div>
+  <!-- full-page click target -->
+  <button
+    class="landing-overlay"
+    type="button"
+    (click)="enterApp()"
+    aria-label="Enter app"
+  ></button>
 </div>

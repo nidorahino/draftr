@@ -1,3 +1,21 @@
+/* Ensure the Angular root and all parents are full height */
+html, body, app-root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #0b0f16; /* Force the base color to match your landing */
+}
+
+:root {
+  --nav-h: 56px; /* typical bootstrap navbar height; adjust if needed */
+}
+
+.app-page {
+  padding-top: var(--nav-h);
+  min-height: 100vh;
+}
+
 /* =========================
    Base typography
 ========================= */

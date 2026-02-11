@@ -7,13 +7,12 @@ import { ThemeService } from './services/theme.service';
   selector: 'app-root',
   standalone: true,
   imports: [NavComponent, RouterOutlet],
-  template: `
-    <app-nav></app-nav>
-
-    <main class="container-fluid py-4 px-4">
-      <router-outlet></router-outlet>
-    </main>
-  `,
+template: `
+  <app-nav></app-nav>
+  <main class="app-page">
+    <router-outlet></router-outlet>
+  </main>
+`,
 })
 export class AppComponent {
   constructor(private theme: ThemeService) {

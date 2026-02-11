@@ -1,52 +1,147 @@
-.landing-hero {
-  background: var(--card);
-  border-color: var(--border);
-  color: var(--text);
-  max-width: 980px;
-  margin: 0 auto;
+:host {
+  display: block;
+  height: 100dvh;
+  overflow: hidden;
+  margin-top: calc(-1 * var(--nav-h)); /* cancels the app-page padding */
 }
 
-.landing-brand {
+/* Fullscreen dark landing */
+.landing-shell {
+  height: 100dvh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+
+  position: relative;
+  overflow: hidden;
+  background: #0b0f16;
+  color: var(--text, #e8eefc);
+}
+
+/* subtle depth without looking busy */
+.landing-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 600px at 50% -10%, rgba(90, 120, 255, 0.14), transparent 60%),
+    radial-gradient(700px 500px at 110% 110%, rgba(255, 90, 180, 0.08), transparent 55%),
+    radial-gradient(700px 500px at -10% 110%, rgba(90, 255, 220, 0.05), transparent 55%);
+}
+
+/* Top center logo */
+.landing-top {
+  position: absolute;
+  top: 120px; /* slightly lower */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+
   display: grid;
-  justify-items: center;
+  place-items: center;
 }
 
 .landing-logo {
-  max-width: 600px;   /* bigger cap */
-  width: 85%;         /* takes more space */
+  max-width: 700px;
+  width: min(82vw, 700px);
   height: auto;
 
-  margin-bottom: 0.25rem; /* tighter spacing */
-
-  filter: drop-shadow(0 8px 18px rgba(0,0,0,0.20));
+  filter: drop-shadow(0 10px 26px rgba(0, 0, 0, 0.55));
+  opacity: 0.95;
 }
 
-/* Squarish / “cube-ish” without external fonts */
-.landing-title {
-  margin-top: 0;          /* remove default gap */
-  line-height: 1;         /* tighter vertical spacing */
+/* Center area: used as positioning canvas */
+.landing-center {
+  height: 100%;
+  position: relative;
+  z-index: 2;
+}
 
-  letter-spacing: 0.22em; /* slightly tighter */
-  padding-left: 0.22em;
+/* Wrap controls where "center" is, without interfering with float animation */
+.landing-title-wrap {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) translateY(60px); /* move CUBED slightly lower */
+}
 
-  font-weight: 800;
-  font-size: clamp(1.7rem, 2.8vw, 2.6rem);
+/* CUBED floating title */
+.landing-title-float {
+  letter-spacing: 0.26em;
+  padding-left: 0.26em;
+  text-transform: uppercase;
+
+  font-weight: 900;
+  font-size: clamp(3rem, 8vw, 6rem);
+  line-height: 1;
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+
+  color: rgba(232, 238, 252, 0.92);
+
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.25),
+    0 14px 40px rgba(0,0,0,0.65);
+
+  animation: cubedFloat 6.5s ease-in-out infinite;
+  transform: translateY(0);
+  user-select: none;
+}
+
+@keyframes cubedFloat {
+  0%   { transform: translateY(6px); }
+  50%  { transform: translateY(-10px); }
+  100% { transform: translateY(6px); }
+}
+
+/* PRESS ENTER: placed lower on screen, doesn't push CUBED */
+.landing-enter {
+  position: absolute;
+  left: 50%;
+  top: 78%; /* much lower (tweak 72–85%) */
+  transform: translateX(-50%);
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+
+  font-weight: 700;
+  font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+
+  letter-spacing: 0.2em;
+  padding-left: 0.2em;
 
   text-transform: uppercase;
 
-  /* gives that “blocky” vibe */
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  color: rgba(232, 238, 252, 0.65);
 
-  /* subtle depth */
-  text-shadow: 0 2px 0 rgba(0,0,0,0.15);
-}
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.35),
+    0 4px 14px rgba(0,0,0,0.6);
 
-.landing-content {
+  animation: enterPulse 2.2s ease-in-out infinite;
+
+  user-select: none;
+  pointer-events: none; /* clicks go through */
   text-align: center;
 }
 
-.landing-content p {
-  max-width: 56ch;
-  margin-left: auto;
-  margin-right: auto;
+@keyframes enterPulse {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 0.9; }
+}
+
+/* Invisible full-page button (behind content) */
+.landing-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+
+  cursor: pointer;
 }
