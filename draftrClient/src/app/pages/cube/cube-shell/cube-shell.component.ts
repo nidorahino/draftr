@@ -12,6 +12,7 @@ import { CubeContextService } from '../../../services/cube-context.service';
   standalone: true,
   imports: [CommonModule, RouterLink, RouterOutlet],
   templateUrl: './cube-shell.component.html',
+  styleUrls: ['./cube-shell.component.css'],
 })
 export class CubeShellComponent implements OnInit, OnDestroy {
   cube: CubeDetail | null = null;

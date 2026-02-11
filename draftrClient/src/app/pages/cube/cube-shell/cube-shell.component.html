@@ -1,83 +1,72 @@
-<div *ngIf="loading" class="text-muted">Loading…</div>
+<div class="cube-page">
+  <div class="cube-bg" aria-hidden="true"></div>
 
-<div *ngIf="error" class="alert alert-danger">
-  {{ error }}
-</div>
+  <div class="cube-wrap">
+    <div *ngIf="loading" class="cube-state">LOADING…</div>
 
-<div *ngIf="cube">
-  <div class="mb-3">
-    <h1 class="h3 mb-1">{{ cube.name }}</h1>
+    <div *ngIf="error" class="cube-state cube-state-error">
+      {{ error }}
+    </div>
 
-    <div class="text-muted small">
-      Role:
-      <span class="badge text-bg-secondary">{{ cube.myRole }}</span>
-      · Max players: {{ cube.maxPlayers }}
+    <div *ngIf="cube">
+      <!-- header -->
+      <header class="cube-head">
+        <div class="cube-head-title">
+          <div class="cube-kicker">CUBE</div>
+          <h1 class="cube-h1">{{ cube.name }}</h1>
+
+          <div class="cube-sub">
+            <span class="cube-sub-label">ROLE</span>
+            <span class="cube-role">{{ cube.myRole }}</span>
+
+            <span class="cube-dot">•</span>
+
+            <span class="cube-sub-label">MAX</span>
+            <span class="cube-sub-val">{{ cube.maxPlayers }}</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- tabs -->
+      <nav class="cube-tabs" aria-label="Cube sections">
+        <a class="cube-tab" routerLink="collection" routerLinkActive="active">
+          My Collection
+        </a>
+
+        <a class="cube-tab" routerLink="cards" routerLinkActive="active">
+          Card Pool
+        </a>
+
+        <a class="cube-tab" routerLink="members" routerLinkActive="active">
+          Members
+        </a>
+
+        <a class="cube-tab" routerLink="audit" routerLinkActive="active">
+          Audit
+        </a>
+
+        <a class="cube-tab" routerLink="bans" routerLinkActive="active">
+          Bans
+        </a>
+
+        <a
+          class="cube-tab"
+          *ngIf="isAdmin()"
+          routerLink="settings"
+          routerLinkActive="active"
+        >
+          Settings
+        </a>
+
+        <a class="cube-tab" routerLink="draft" routerLinkActive="active">
+          Draft
+        </a>
+      </nav>
+
+      <!-- content -->
+      <section class="cube-content">
+        <router-outlet></router-outlet>
+      </section>
     </div>
   </div>
-
-  <ul class="nav nav-tabs mb-3">
-    <li class="nav-item">
-    <a class="nav-link" routerLink="collection" routerLinkActive="active">
-        My Collection
-    </a>
-    </li>
-
-    <li class="nav-item">
-      <a
-        class="nav-link"
-        routerLink="cards"
-        routerLinkActive="active"
-      >
-        Card Pool
-      </a>
-    </li>
-
-    <li class="nav-item">
-      <a
-        class="nav-link"
-        routerLink="members"
-        routerLinkActive="active"
-      >
-        Members
-      </a>
-    </li>
-
-    <li class="nav-item">
-      <a
-        class="nav-link"
-        routerLink="audit"
-        routerLinkActive="active"
-      >
-        Audit
-      </a>
-    </li>
-
-    <li class="nav-item">
-      <a
-        class="nav-link"
-        routerLink="bans"
-        routerLinkActive="active"
-      >
-        Bans
-      </a>
-    </li>
-
-    <li class="nav-item" *ngIf="isAdmin()">
-      <a class="nav-link" routerLink="settings" routerLinkActive="active">
-        Settings
-      </a>
-    </li>
-
-    <li class="nav-item">
-      <a class="nav-link"
-        routerLink="draft"
-        routerLinkActive="active">
-        Draft
-      </a>
-    </li>
-
-  </ul>
-
-  <!-- Child routes render here -->
-  <router-outlet></router-outlet>
 </div>

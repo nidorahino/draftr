@@ -1,0 +1,192 @@
+:host {
+  display: block;
+  min-height: calc(100dvh - var(--nav-h));
+}
+
+/* Page background + padding so nothing hugs edges */
+.cube-page {
+  position: relative;
+  min-height: calc(100dvh - var(--nav-h));
+  background: #0b0f16;
+  color: rgba(232, 238, 252, 0.92);
+  overflow: hidden;
+}
+
+/* same background language as landing / my-cubes */
+.cube-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 600px at 50% -10%, rgba(90, 120, 255, 0.14), transparent 60%),
+    radial-gradient(700px 500px at 110% 110%, rgba(255, 90, 180, 0.08), transparent 55%),
+    radial-gradient(700px 500px at -10% 110%, rgba(90, 255, 220, 0.05), transparent 55%);
+}
+
+/* This is the "container" that prevents edge hugging */
+.cube-wrap {
+  position: relative;
+  z-index: 2;
+
+  /* more horizontal spread */
+  padding: 24px 22px 40px;
+
+  /* wider container */
+  max-width: 1750px;
+  margin: 0 auto;
+}
+
+/* States */
+.cube-state {
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(232, 238, 252, 0.10);
+  background: rgba(15, 20, 32, 0.35);
+  backdrop-filter: blur(8px);
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0.14em;
+  padding-left: 0.14em;
+  text-transform: uppercase;
+  color: rgba(232, 238, 252, 0.65);
+}
+
+.cube-state-error {
+  border-color: rgba(255, 90, 180, 0.25);
+  background: rgba(255, 90, 180, 0.08);
+  color: rgba(232, 238, 252, 0.85);
+}
+
+/* Header */
+.cube-head {
+  padding: 6px 2px 14px;
+}
+
+.cube-kicker {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0.28em;
+  padding-left: 0.28em;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: rgba(232, 238, 252, 0.55);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.cube-h1 {
+  margin: 0 0 8px;
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0.18em;
+  padding-left: 0.18em;
+
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+  line-height: 1.05;
+
+  color: rgba(232, 238, 252, 0.92);
+  text-shadow:
+    0 1px 0 rgba(0,0,0,0.25),
+    0 14px 40px rgba(0,0,0,0.60);
+}
+
+/* Subline */
+.cube-sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  color: rgba(232, 238, 252, 0.70);
+  font-size: 0.95rem;
+}
+
+.cube-sub-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0.14em;
+  padding-left: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: rgba(232, 238, 252, 0.55);
+}
+
+.cube-role {
+  border: 1px solid rgba(232, 238, 252, 0.14);
+  background: rgba(10, 14, 22, 0.38);
+  color: rgba(232, 238, 252, 0.78);
+  border-radius: 999px;
+  padding: 6px 10px;
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0.12em;
+  padding-left: 0.12em;
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: 0.72rem;
+}
+
+.cube-dot {
+  opacity: 0.5;
+  margin: 0 2px;
+}
+
+.cube-sub-val {
+  color: rgba(232, 238, 252, 0.85);
+  font-weight: 600;
+}
+
+/* Tabs */
+.cube-tabs {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  padding: 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(232, 238, 252, 0.10);
+  background: rgba(15, 20, 32, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+.cube-tab {
+  text-decoration: none;
+  cursor: pointer;
+
+  padding: 8px 12px;
+  border-radius: 999px;
+
+  border: 1px solid rgba(232, 238, 252, 0.12);
+  background: rgba(10, 14, 22, 0.28);
+
+  color: rgba(232, 238, 252, 0.78);
+  font-weight: 650;
+  font-size: 0.92rem;
+
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease, color 140ms ease;
+}
+
+.cube-tab:hover {
+  transform: translateY(-1px);
+  border-color: rgba(90, 120, 255, 0.30);
+  background: rgba(90, 120, 255, 0.10);
+  color: rgba(232, 238, 252, 0.92);
+}
+
+/* active route */
+.cube-tab.active {
+  border-color: rgba(90, 255, 220, 0.28);
+  background: rgba(90, 255, 220, 0.10);
+  color: rgba(232, 238, 252, 0.92);
+}
+
+/* Content spacing */
+.cube-content {
+  margin-top: 14px;
+}
