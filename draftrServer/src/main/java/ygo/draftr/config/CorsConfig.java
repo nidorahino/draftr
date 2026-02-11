@@ -19,7 +19,9 @@ public class CorsConfig {
                 registry.addMapping("/api/**")
                         .allowedOrigins(
                                 "http://localhost:4200",
-                                "https://sparkling-blessing-production.up.railway.app"
+                                "https://sparkling-blessing-production.up.railway.app",
+                                "https://ygocubed.com",
+                                "https://www.ygocubed.com"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
