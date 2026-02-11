@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://draftr-production.up.railway.app'
+  apiBaseUrl: 'https://api.ygocubed.com'
 };
