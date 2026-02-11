@@ -12,6 +12,7 @@ import { CubeContextService } from '../../../services/cube-context.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './cube-members.component.html',
+    styleUrls: ['./cube-members.component.css'],
 })
 export class CubeMembersComponent implements OnInit {
   cubeId = 0;
@@ -370,53 +371,71 @@ export class CubeMembersComponent implements OnInit {
     return this.rewardPickedIds.has(cardId);
   }
 
-  togglePick(cardId: number): void {
-    if (this.applyingReward) return;
+togglePick(cardId: number): void {
+  if (this.applyingReward) return;
 
-    if (this.rewardPickedIds.has(cardId)) {
-      this.rewardPickedIds.delete(cardId);
-      return;
-    }
-
-    if (this.rewardPickedIds.size >= this.rewardPickLimit) return;
-    this.rewardPickedIds.add(cardId);
+  if (this.rewardPickedIds.has(cardId)) {
+    this.rewardPickedIds.delete(cardId);
+    return;
   }
 
-  confirmReward(): void {
-    if (this.rewardPickedIds.size !== this.rewardPickLimit) {
+  // enforce max picks
+  if (this.rewardPickedIds.size >= this.maxPicks()) return;
+
+  this.rewardPickedIds.add(cardId);
+}
+
+confirmReward(): void {
+  const count = this.rewardPickedIds.size;
+
+  // Validate picks based on mode
+  if (this.rewardMode === 'LOSER_BAN') {
+    // loser: pick 1..rewardPickLimit (<= 8)
+    if (count < 1 || count > this.rewardPickLimit) {
+      this.error = `Pick between 1 and ${this.rewardPickLimit} cards.`;
+      return;
+    }
+  } else {
+    // winner: must pick exactly rewardPickLimit (2)
+    if (count !== this.rewardPickLimit) {
       this.error = `Pick exactly ${this.rewardPickLimit} cards.`;
       return;
     }
-
-    const selected = Array.from(this.rewardPickedIds);
-
-    this.error = null;
-    this.applyingReward = true;
-
-    const done = () => {
-      this.applyingReward = false;
-      this.closeRewardOffer();
-      this.load();
-    };
-
-    const fail = (err: any) => {
-      this.applyingReward = false;
-      this.error = typeof err?.error === 'string' ? err.error : 'Failed to apply reward.';
-    };
-
-    if (this.rewardMode === 'WINNER_PICK2') {
-      this.cubes.applyWinnerSpin(this.cubeId, selected).subscribe({ next: done, error: fail });
-    } else {
-      this.cubes.applyLoserSpin(this.cubeId, selected).subscribe({
-        next: (r) => {
-          // optional: show a quick message
-          // this.successMessage = `Banned card #${r?.bannedCardId}`;
-          done();
-        },
-        error: fail,
-      });
-    }
   }
+
+  const selected = Array.from(this.rewardPickedIds);
+
+  this.error = null;
+  this.applyingReward = true;
+
+  const done = () => {
+    this.applyingReward = false;
+    this.closeRewardOffer();
+    this.load();
+  };
+
+  const fail = (err: any) => {
+    this.applyingReward = false;
+    this.error =
+      typeof err?.error === 'string' ? err.error : 'Failed to apply reward.';
+  };
+
+  if (this.rewardMode === 'WINNER_PICK2') {
+    this.cubes.applyWinnerSpin(this.cubeId, selected).subscribe({
+      next: done,
+      error: fail,
+    });
+  } else {
+    this.cubes.applyLoserSpin(this.cubeId, selected).subscribe({
+      next: (_r) => {
+        // optional: show a quick message
+        // this.successMessage = `Banned card #${_r?.bannedCardId}`;
+        done();
+      },
+      error: fail,
+    });
+  }
+}
 
   closeRewardOffer(): void {
     this.showingRewardOffer = false;
@@ -435,7 +454,7 @@ export class CubeMembersComponent implements OnInit {
       next: (resp) => {
         const ids = resp?.offeredCardIds ?? [];
 
-        this.rewardTitle = 'Loser Wheel — Choose up to 8 (1 will be banned)';
+        this.rewardTitle = 'Loser Wheel — Pick up to 8 (1 will be banned at random)';
         this.rewardPickLimit = Math.min(8, ids.length);
 
         this.rewardOfferIds = ids;
@@ -460,4 +479,18 @@ export class CubeMembersComponent implements OnInit {
     });
   }
 
+  private minPicks(): number {
+  return this.rewardMode === 'LOSER_BAN' ? 1 : this.rewardPickLimit;
+}
+
+private maxPicks(): number {
+  return this.rewardPickLimit;
+}
+
+canConfirmReward(): boolean {
+  if (this.rewardMode === 'LOSER_BAN') {
+    return this.rewardPickedIds.size >= 1 && this.rewardPickedIds.size <= this.rewardPickLimit;
+  }
+  return this.rewardPickedIds.size === this.rewardPickLimit;
+}
 }

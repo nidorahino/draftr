@@ -204,3 +204,28 @@ a:hover {
   /* make the padding strip dark so the nav blends the same */
   background: #0b0f16;
 }
+
+.bg-neon {
+  background: #0b0f16;
+  color: rgba(232, 238, 252, 0.92);
+  position: relative;
+  overflow: hidden;
+}
+.bg-neon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 600px at 50% -10%, rgba(90, 120, 255, 0.14), transparent 60%),
+    radial-gradient(700px 500px at 110% 110%, rgba(255, 90, 180, 0.08), transparent 55%),
+    radial-gradient(700px 500px at -10% 110%, rgba(90, 255, 220, 0.05), transparent 55%);
+}
+
+/* shared glass card */
+.glass {
+  border-radius: 18px;
+  border: 1px solid rgba(232, 238, 252, 0.12);
+  background: rgba(15, 20, 32, 0.55);
+  backdrop-filter: blur(10px);
+}

@@ -324,15 +324,25 @@ public class RoundClaimService {
             return new LoserOfferResponse(rc.getRoundClaimId(), rc.getWinnerUserId(), existing);
         }
 
-        // Build offer from opponent (winner) collection: up to 8 unique cardIds
-        List<CubeCollectionCard> oppRows = collectionRepo.findByCubeIdAndUserId(cubeId, rc.getWinnerUserId());
+        // Build offer from opponent (winner) collection: RANDOM sample up to 8 unique cardIds
+        List<CubeCollectionCard> oppRows =
+                collectionRepo.findByCubeIdAndUserId(cubeId, rc.getWinnerUserId());
 
         List<Long> uniqueCardIds = oppRows.stream()
                 .map(CubeCollectionCard::getCardId)
+                .filter(Objects::nonNull)
                 .distinct()
                 .toList();
 
+        if (uniqueCardIds.isEmpty()) {
+            throw new IllegalArgumentException("Opponent has no cards in their collection to offer.");
+        }
+
         List<Long> offer = new ArrayList<>(uniqueCardIds);
+        Collections.shuffle(offer);
+        if (offer.size() > 8) {
+            offer = offer.subList(0, 8);
+        }
 
         writeEvent(
                 cubeId,
@@ -358,12 +368,10 @@ public class RoundClaimService {
 
         if (selectedCardIds == null) throw new IllegalArgumentException("selectedCardIds is required");
 
-        List<Long> picks = new ArrayList<>(
-                selectedCardIds.stream()
-                        .filter(Objects::nonNull)
-                        .distinct()
-                        .toList()
-        );
+        List<Long> picks = selectedCardIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
 
         if (picks.isEmpty()) throw new IllegalArgumentException("Select at least 1 card.");
         if (picks.size() > 8) throw new IllegalArgumentException("You can select at most 8 cards.");
@@ -376,23 +384,23 @@ public class RoundClaimService {
             throw new IllegalArgumentException("You are not the loser for the pending round.");
         }
         if (rc.isLoserSpinClaimed()) {
-            // idempotent-ish: just fail or return last result; simplest: fail
             throw new IllegalArgumentException("Loser spin already claimed.");
         }
 
         List<Long> offer = findLoserOfferCardIds(cubeId, rc.getRoundClaimId());
-        if (offer == null) throw new IllegalArgumentException("No loser offer exists yet. Click Claim Loser Spin first.");
+        if (offer == null) {
+            throw new IllegalArgumentException("No loser offer exists yet. Start the loser spin first.");
+        }
 
-        java.util.Set<Long> offerSet = new java.util.HashSet<>(offer);
+        Set<Long> offerSet = new HashSet<>(offer);
         for (Long pick : picks) {
             if (!offerSet.contains(pick)) {
                 throw new IllegalArgumentException("Selected card is not in the current offer.");
             }
         }
 
-        // Randomly pick 1 from the chosen list
-        Collections.shuffle(picks);
-        Long bannedCardId = picks.get(0);
+        // Randomly ban 1 from the chosen list (1..8)
+        Long bannedCardId = picks.get(new Random().nextInt(picks.size()));
 
         // Apply ban in cube pool
         CubeCard cubeCard = cubeCardRepo.findByCubeIdAndCardId(cubeId, bannedCardId)

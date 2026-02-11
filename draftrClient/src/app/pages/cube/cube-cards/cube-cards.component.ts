@@ -16,6 +16,7 @@ import { CardFilters, DEFAULT_FILTERS } from '../../../models/card-filters';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './cube-cards.component.html',
+    styleUrls: ['./cube-cards.component.css'],
 })
 export class CubeCardsComponent implements OnInit {
   cubeId = 0;

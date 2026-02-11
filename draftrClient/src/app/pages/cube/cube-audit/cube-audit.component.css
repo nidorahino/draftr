@@ -1,0 +1,148 @@
+:host { display: block; }
+
+.audit-wrap {
+  margin-top: 14px;
+  width: 100%;
+}
+
+/* Header matches cube pages */
+.audit-head {
+  padding: 6px 2px 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.audit-head .h5 {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0.18em;
+  padding-left: 0.18em;
+  text-transform: uppercase;
+  font-weight: 900;
+  color: rgba(232, 238, 252, 0.92);
+}
+
+:host ::ng-deep .text-muted {
+  color: rgba(232, 238, 252, 0.60) !important;
+}
+
+/* Loading state as a glass strip (like your cube-state) */
+.audit-state {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(232, 238, 252, 0.10);
+  background: rgba(15, 20, 32, 0.35);
+  backdrop-filter: blur(8px);
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0.14em;
+  padding-left: 0.14em;
+  text-transform: uppercase;
+  color: rgba(232, 238, 252, 0.65);
+}
+
+/* Alerts tuned to your palette */
+:host ::ng-deep .alert {
+  margin-top: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(232, 238, 252, 0.10);
+  background: rgba(15, 20, 32, 0.35);
+  color: rgba(232, 238, 252, 0.85);
+  backdrop-filter: blur(8px);
+}
+
+:host ::ng-deep .alert-danger {
+  border-color: rgba(255, 90, 180, 0.25);
+  background: rgba(255, 90, 180, 0.08);
+  color: rgba(232, 238, 252, 0.92);
+}
+
+:host ::ng-deep .alert-info {
+  border-color: rgba(90, 255, 220, 0.18);
+  background: rgba(90, 255, 220, 0.06);
+  color: rgba(232, 238, 252, 0.88);
+}
+
+/* List group -> glass list */
+.audit-list {
+  border-radius: 18px;
+  border: 1px solid rgba(232, 238, 252, 0.12);
+  background: rgba(15, 20, 32, 0.40);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+
+  box-shadow:
+    0 18px 50px rgba(0,0,0,0.40),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+/* Remove default list-group borders */
+:host ::ng-deep .list-group.audit-list {
+  border: 1px solid rgba(232, 238, 252, 0.12);
+}
+
+.audit-item {
+  background: transparent !important;
+  border-color: rgba(232, 238, 252, 0.10) !important;
+  padding: 12px 14px;
+}
+
+/* Slight hover lift without big halo */
+.audit-item:hover {
+  background: rgba(90, 120, 255, 0.06) !important;
+}
+
+/* Event type reads like a tag */
+.audit-type {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0.14em;
+  padding-left: 0.14em;
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: 0.82rem;
+  color: rgba(232, 238, 252, 0.92);
+}
+
+.audit-time {
+  white-space: nowrap;
+}
+
+.audit-summary {
+  color: rgba(232, 238, 252, 0.78);
+}
+
+.audit-meta {
+  margin-top: 8px;
+  color: rgba(232, 238, 252, 0.58) !important;
+}
+
+.audit-meta-val {
+  color: rgba(232, 238, 252, 0.86);
+  font-weight: 650;
+}
+
+/* Pager buttons: match your button skin */
+:host ::ng-deep .btn {
+  border-radius: 14px;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep .btn-outline-secondary {
+  border-color: rgba(232, 238, 252, 0.16);
+  color: rgba(232, 238, 252, 0.82);
+  background: rgba(10, 14, 22, 0.20);
+}
+
+:host ::ng-deep .btn-outline-secondary:hover:enabled {
+  border-color: rgba(90, 120, 255, 0.35);
+  background: rgba(90, 120, 255, 0.10);
+  transform: translateY(-1px);
+}
+
+.audit-pager {
+  margin-top: 6px;
+}

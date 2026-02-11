@@ -47,47 +47,49 @@
 </div>
 
 <!-- Claim loss panel -->
-<div *ngIf="showingClaimLoss" class="card mb-3">
-  <div class="card-body d-flex flex-wrap align-items-center gap-2">
-    <div class="fw-semibold me-2">Who won?</div>
+<div *ngIf="showingClaimLoss" class="panel mb-3">
+  <div class="panel-body">
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <div class="panel-title me-2">Who won?</div>
 
-    <select
-      class="form-select form-select-sm"
-      style="width: 220px;"
-      [(ngModel)]="selectedWinnerUserId"
-      [disabled]="claimingLoss"
-    >
-      <option [ngValue]="null">Select member…</option>
-      <option *ngFor="let w of winnersForDropdown()" [ngValue]="w.userId">
-        {{ w.username || ('User #' + w.userId) }}
-      </option>
-    </select>
+      <select
+        class="form-select form-select-sm claim-select"
+        [(ngModel)]="selectedWinnerUserId"
+        [disabled]="claimingLoss"
+      >
+        <option [ngValue]="null">Select member…</option>
+        <option *ngFor="let w of winnersForDropdown()" [ngValue]="w.userId">
+          {{ w.username || ('User #' + w.userId) }}
+        </option>
+      </select>
 
-    <button
-      class="btn btn-sm btn-primary"
-      type="button"
-      (click)="claimLoss()"
-      [disabled]="claimingLoss || !selectedWinnerUserId"
-    >
-      {{ claimingLoss ? 'Claiming…' : 'Confirm' }}
-    </button>
+      <button
+        class="btn btn-sm btn-primary"
+        type="button"
+        (click)="claimLoss()"
+        [disabled]="claimingLoss || !selectedWinnerUserId"
+      >
+        {{ claimingLoss ? 'Claiming…' : 'Confirm' }}
+      </button>
 
-    <button
-      class="btn btn-sm btn-outline-secondary"
-      type="button"
-      (click)="cancelClaimLoss()"
-      [disabled]="claimingLoss"
-    >
-      Cancel
-    </button>
+      <button
+        class="btn btn-sm btn-outline-secondary"
+        type="button"
+        (click)="cancelClaimLoss()"
+        [disabled]="claimingLoss"
+      >
+        Cancel
+      </button>
+    </div>
   </div>
 </div>
 
 <!-- Reward offer panel (winner pick-2, image-only) -->
-<div *ngIf="showingRewardOffer" class="card mb-3">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <div class="fw-semibold">
-      {{ rewardTitle }} ({{ rewardPickedIds.size }}/{{ rewardPickLimit }})
+<div *ngIf="showingRewardOffer" class="panel mb-3">
+  <div class="panel-head d-flex justify-content-between align-items-center">
+    <div class="panel-title">
+      {{ rewardTitle }}
+      <span class="panel-sub ms-2">({{ rewardPickedIds.size }}/{{ rewardPickLimit }})</span>
     </div>
 
     <div class="d-flex gap-2">
@@ -95,9 +97,9 @@
         class="btn btn-sm btn-success"
         type="button"
         (click)="confirmReward()"
-        [disabled]="applyingReward || rewardPickedIds.size !== rewardPickLimit"
+        [disabled]="applyingReward || !canConfirmReward()"
       >
-        {{ applyingReward ? 'Applying…' : 'Confirm Picks' }}
+        {{ applyingReward ? 'Applying…' : 'Confirm' }}
       </button>
 
       <button
@@ -111,229 +113,54 @@
     </div>
   </div>
 
-  <div class="card-body">
-
-    <!-- Loading -->
-    <div *ngIf="loadingRewardOffer" class="text-muted small">
-      Loading offer…
-    </div>
-
-    <!-- Empty -->
-    <div *ngIf="!loadingRewardOffer && rewardOfferCards.length === 0"
-         class="text-muted small">
-      No cards available.
-    </div>
-
-    <!-- Main layout -->
-    <div *ngIf="!loadingRewardOffer && rewardOfferCards.length > 0"
-         class="row g-3">
-
-      <!-- LEFT: image grid -->
-      <div class="col-12 col-lg-8">
-        <div class="row g-2">
-
-          <div
-            class="col-6 col-sm-4 col-md-3 col-lg-2"
-            *ngFor="let c of rewardOfferCards"
-          >
-            <div
-              class="position-relative shadow-sm rounded overflow-hidden"
-              style="cursor:pointer;"
-              (click)="selectRewardDetail(c)"
-              [class.border]="isPicked(c.cardId)"
-              [class.border-success]="isPicked(c.cardId)"
-            >
-
-              <!-- Image -->
-              <img
-                *ngIf="c.imageUrl"
-                [src]="c.imageUrl"
-                class="w-100 d-block"
-                alt="card"
-                style="aspect-ratio: 3 / 4; object-fit: contain;"
-              />
-
-              <div
-                *ngIf="!c.imageUrl"
-                class="d-flex align-items-center justify-content-center text-muted"
-                style="aspect-ratio: 3 / 4;"
-              >
-                No image
-              </div>
-
-              <!-- Pick badge -->
-              <div
-                *ngIf="isPicked(c.cardId)"
-                class="position-absolute bottom-0 start-0 m-2 px-2 py-1 rounded text-bg-success small"
-              >
-                PICKED
-              </div>
-
-              <!-- Toggle pick -->
-              <button
-                type="button"
-                class="btn btn-sm position-absolute top-0 start-0 m-2"
-                [ngClass]="isPicked(c.cardId) ? 'btn-success' : 'btn-outline-light'"
-                (click)="$event.stopPropagation(); togglePick(c.cardId)"
-                [disabled]="applyingReward"
-                title="Toggle pick"
-              >
-                {{ isPicked(c.cardId) ? '✓' : '+' }}
-              </button>
-
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- RIGHT: details panel -->
-      <div class="col-12 col-lg-4">
-
-        <div class="card shadow-sm h-100" *ngIf="rewardSelectedDetail">
-          <div class="card-body d-flex flex-column">
-
-            <!-- Image -->
-            <div class="text-center mb-3">
-              <img
-                *ngIf="rewardSelectedDetail.imageUrl"
-                [src]="rewardSelectedDetail.imageUrl"
-                class="img-fluid rounded border"
-                alt="card image"
-                style="max-height: 420px;"
-              />
-
-              <div *ngIf="!rewardSelectedDetail.imageUrl" class="text-muted">
-                No image.
-              </div>
-            </div>
-
-            <!-- Name / Type -->
-            <div class="mb-2">
-              <div class="fw-semibold">
-                {{ rewardSelectedDetail.name ?? ('Card #' + rewardSelectedDetail.cardId) }}
-              </div>
-
-              <div class="text-muted small">
-                {{
-                  rewardSelectedDetail.humanReadableCardType
-                  ?? rewardSelectedDetail.cardType
-                  ?? ''
-                }}
-              </div>
-
-              <div
-                class="text-muted small"
-                *ngIf="rewardSelectedDetail.archetype"
-              >
-                {{ rewardSelectedDetail.archetype }}
-              </div>
-            </div>
-
-            <!-- Meta -->
-            <div class="mb-2 small text-muted">
-              <div>ID: {{ rewardSelectedDetail.cardId }}</div>
-            </div>
-
-            <!-- Description -->
-            <div
-              class="border rounded p-2 small flex-grow-1 mb-3"
-              style="overflow-y:auto; background:#fafafa;"
-            >
-              {{ rewardSelectedDetail.description ?? 'No description.' }}
-            </div>
-
-            <!-- Stats -->
-            <div
-              *ngIf="
-                rewardSelectedDetail.atk != null ||
-                rewardSelectedDetail.def != null ||
-                rewardSelectedDetail.level != null
-              "
-              class="d-flex justify-content-between align-items-center
-                     small text-muted border-top pt-2 mt-2 pb-2"
-            >
-
-              <div *ngIf="rewardSelectedDetail.level != null">
-                ⭐ Level:
-                <strong>{{ rewardSelectedDetail.level }}</strong>
-              </div>
-
-              <div *ngIf="rewardSelectedDetail.atk != null">
-                ⚔️ ATK:
-                <strong>{{ rewardSelectedDetail.atk }}</strong>
-              </div>
-
-              <div *ngIf="rewardSelectedDetail.def != null">
-                🛡️ DEF:
-                <strong>{{ rewardSelectedDetail.def }}</strong>
-              </div>
-
-            </div>
-
-            <!-- Pick button -->
-            <div class="d-grid gap-2 mt-auto">
-              <button
-                type="button"
-                class="btn btn-sm"
-                [ngClass]="
-                  isPicked(rewardSelectedDetail.cardId)
-                    ? 'btn-success'
-                    : 'btn-outline-success'
-                "
-                (click)="togglePick(rewardSelectedDetail.cardId)"
-                [disabled]="applyingReward"
-              >
-                {{
-                  isPicked(rewardSelectedDetail.cardId)
-                    ? 'Picked'
-                    : 'Pick this card'
-                }}
-              </button>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-
-    </div>
+  <div class="panel-body">
+    <!-- keep the rest of your reward content exactly the same -->
+    ...
   </div>
 </div>
 
 <!-- Add member (Admin/Owner only) -->
-<div *ngIf="!loading && isAdmin()" class="card mb-3">
-  <div class="card-body d-flex flex-wrap align-items-center gap-2">
-    <div class="fw-semibold me-2">Add member</div>
+<div *ngIf="!loading && isAdmin()" class="panel mb-3">
+  <div class="panel-body">
+    <div class="row g-2 align-items-center">
+      <!-- Left: title -->
+      <div class="col-12 col-lg-4">
+        <div class="panel-title">Add member</div>
+        <div class="panel-sub">Admin/Owner only</div>
+      </div>
 
-    <input
-      class="form-control form-control-sm"
-      style="width: 240px;"
-      placeholder="Username"
-      [(ngModel)]="addUsername"
-      (keyup.enter)="addMember()"
-    />
+      <!-- Right: controls -->
+      <div class="col-12 col-lg-8">
+        <div class="d-flex flex-wrap justify-content-lg-end gap-2">
+          <input
+            class="form-control form-control-sm add-input"
+            placeholder="Username"
+            [(ngModel)]="addUsername"
+            (keyup.enter)="addMember()"
+          />
 
-    <button
-      class="btn btn-sm btn-primary"
-      type="button"
-      (click)="addMember()"
-      [disabled]="!addUsername?.trim()"
-    >
-      Add
-    </button>
+          <button
+            class="btn btn-sm btn-primary"
+            type="button"
+            (click)="addMember()"
+            [disabled]="!addUsername?.trim()"
+          >
+            Add
+          </button>
 
-    <button
-      class="btn btn-sm btn-outline-secondary"
-      type="button"
-      (click)="addUsername = ''"
-      [disabled]="!addUsername"
-    >
-      Clear
-    </button>
+          <button
+            class="btn btn-sm btn-outline-secondary"
+            type="button"
+            (click)="addUsername = ''"
+            [disabled]="!addUsername"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
-
 
 <!-- Errors -->
 <div *ngIf="error" class="alert alert-danger py-2 mb-3">
@@ -351,32 +178,84 @@
 </div>
 
 <!-- Members list -->
-<div *ngIf="!loading && members.length > 0" class="list-group">
-  <div
-    class="list-group-item d-flex justify-content-between align-items-center"
-    *ngFor="let m of members"
-  >
-    <!-- Left: identity -->
-    <div>
-      <div class="fw-semibold">{{ m.username || ('User #' + m.userId) }}</div>
-      <div class="text-muted small">Joined {{ m.joinedAt | date:'medium' }}</div>
+<!-- Members cards -->
+<div *ngIf="!loading && members.length > 0" class="row g-3 members-grid">
+
+<div class="col-12 col-md-6 col-xl-4" *ngFor="let m of members">
+  <div class="member-card">
+
+    <!-- TOP -->
+    <div class="member-top d-flex justify-content-between align-items-start gap-2">
+      <div class="member-id">
+        <div class="member-name">
+          {{ m.username || ('User #' + m.userId) }}
+        </div>
+        <div class="member-sub text-muted small">
+          Joined {{ m.joinedAt | date:'medium' }}
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 member-role-wrap">
+        <span
+          class="role-badge"
+          [class.role-owner]="m.role === 'OWNER'"
+          [class.role-admin]="m.role === 'ADMIN'"
+          [class.role-member]="m.role === 'MEMBER'"
+          title="Role"
+        >
+          {{ m.role }}
+        </span>
+
+        <ng-container *ngIf="isOwner() && m.role !== 'OWNER'">
+          <button
+            *ngIf="editingRoleUserId !== m.userId"
+            type="button"
+            class="btn btn-sm btn-outline-primary role-change-btn"
+            (click)="toggleRoleEditor(m)"
+            [disabled]="savingRoleForUserId === m.userId"
+          >
+            Change
+          </button>
+
+          <div *ngIf="editingRoleUserId === m.userId" class="d-flex align-items-center gap-2">
+            <select
+              class="form-select form-select-sm member-role-select"
+              [disabled]="savingRoleForUserId === m.userId"
+              [ngModel]="m.role"
+              (ngModelChange)="changeRole(m.userId, $event)"
+            >
+              <option [ngValue]="'MEMBER'">MEMBER</option>
+              <option [ngValue]="'ADMIN'">ADMIN</option>
+            </select>
+
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary"
+              (click)="closeRoleEditor()"
+              [disabled]="savingRoleForUserId === m.userId"
+              title="Close"
+            >
+              ✕
+            </button>
+          </div>
+        </ng-container>
+      </div>
     </div>
 
-    <!-- Right: controls -->
-    <div class="d-flex align-items-center gap-2">
-
-      <!-- Wins badge (click to toggle editor if Admin/Owner) -->
-      <span
-        class="badge text-bg-dark"
-        [class.opacity-75]="!isAdmin()"
-        style="cursor: pointer;"
+    <!-- META -->
+    <div class="member-meta mt-2 d-flex flex-wrap align-items-center gap-2">
+      <button
+        type="button"
+        class="member-wins btn btn-sm"
+        [class.btn-outline-light]="!isAdmin()"
+        [class.btn-outline-success]="isAdmin()"
         (click)="toggleWinsEditor(m)"
+        [disabled]="!isAdmin()"
         title="Wins"
       >
-        {{ m.wins }} WINS
-      </span>
+        {{ m.wins }} wins
+      </button>
 
-      <!-- Wins editor (stays open until you click badge again or pick an action) -->
       <div *ngIf="isAdmin() && editingWinsUserId === m.userId" class="btn-group btn-group-sm">
         <button
           class="btn btn-outline-success"
@@ -407,35 +286,8 @@
         </button>
       </div>
 
-      <!-- Role badge (clickable if OWNER + not owner row) -->
-      <span
-        class="badge"
-        [class.text-bg-primary]="m.role === 'OWNER'"
-        [class.text-bg-secondary]="m.role === 'ADMIN'"
-        [class.text-bg-light]="m.role === 'MEMBER'"
-        [class.opacity-75]="!(isOwner() && m.role !== 'OWNER')"
-        style="cursor: pointer;"
-        (click)="toggleRoleEditor(m)"
-        title="Role"
-      >
-        {{ m.role }}
-      </span>
+      <span class="member-spacer"></span>
 
-      <!-- Inline role editor (only when active) -->
-      <select
-        *ngIf="isOwner() && editingRoleUserId === m.userId"
-        class="form-select form-select-sm"
-        style="width: 130px;"
-        [disabled]="savingRoleForUserId === m.userId"
-        [ngModel]="m.role"
-        (ngModelChange)="changeRole(m.userId, $event)"
-        (blur)="closeRoleEditor()"
-      >
-        <option [ngValue]="'MEMBER'">MEMBER</option>
-        <option [ngValue]="'ADMIN'">ADMIN</option>
-      </select>
-
-      <!-- Remove -->
       <button
         *ngIf="isAdmin() && m.role !== 'OWNER'"
         class="btn btn-sm btn-outline-danger"
@@ -444,7 +296,8 @@
       >
         Remove
       </button>
-
     </div>
+
+    <div class="member-glow"></div>
   </div>
 </div>

@@ -15,6 +15,7 @@ import { CubeDetail } from '../../../models/cube-detail';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './cube-settings.component.html',
+  styleUrls: ['./cube-settings.component.css'],
 })
 export class CubeSettingsComponent implements OnInit, OnDestroy {
   cubeId = 0;

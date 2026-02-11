@@ -1,0 +1,292 @@
+:host {
+  display: block;
+}
+
+/* Global-ish text-muted tuning for this component */
+:host ::ng-deep .text-muted {
+  color: rgba(232, 238, 252, 0.60) !important;
+}
+
+/* ======================
+   Glass Panel (reusable)
+====================== */
+.panel {
+  border-radius: 18px;
+  border: 1px solid rgba(232, 238, 252, 0.12);
+  background: rgba(15, 20, 32, 0.55);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  box-shadow:
+    0 18px 50px rgba(0,0,0,0.40),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.panel-head {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(232, 238, 252, 0.10);
+  background: rgba(10, 14, 22, 0.18);
+}
+
+.panel-body {
+  padding: 14px 14px;
+}
+
+.panel-title {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0.18em;
+  padding-left: 0.18em;
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: 0.88rem;
+  color: rgba(232, 238, 252, 0.90);
+}
+
+.panel-sub {
+  margin-top: 4px;
+  font-weight: 650;
+  font-size: 0.85rem;
+  color: rgba(232, 238, 252, 0.58);
+}
+
+/* Top action badges polish (keep Bootstrap classes) */
+.badge.text-bg-warning,
+.badge.text-bg-success {
+  border: 1px solid rgba(232, 238, 252, 0.14);
+  background: rgba(10, 14, 22, 0.30) !important;
+  color: rgba(232, 238, 252, 0.90) !important;
+}
+
+.badge.text-bg-warning { border-color: rgba(255, 200, 90, 0.30); }
+.badge.text-bg-success { border-color: rgba(90, 255, 220, 0.26); }
+
+/* Form control sizing (replaces inline widths) */
+.add-input,
+.claim-select {
+  width: 260px;
+  max-width: 100%;
+  flex: 1 1 220px;
+  min-width: 180px;
+}
+
+/* ======================
+   Members grid + cards
+====================== */
+.members-grid {
+  margin-top: 0;
+}
+
+.member-card {
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid rgba(232, 238, 252, 0.12);
+  background: rgba(15, 20, 32, 0.55);
+  backdrop-filter: blur(10px);
+  padding: 14px 14px 12px;
+  overflow: hidden;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.member-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(90, 120, 255, 0.30);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+}
+
+.member-name {
+  font-weight: 900;
+  color: rgba(232, 238, 252, 0.92);
+  line-height: 1.15;
+  font-size: 1.02rem;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-sub {
+  margin-top: 2px;
+}
+
+/* Keep role cluster aligned to the right and wrapping nicely */
+.member-role-wrap {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* Role status pill (non-clickable) */
+.role-badge {
+  user-select: none;
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0.14em;
+  padding-left: 0.14em;
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: 0.72rem;
+
+  border-radius: 999px;
+  padding: 7px 10px;
+
+  border: 1px solid rgba(232, 238, 252, 0.14);
+  background: rgba(10, 14, 22, 0.38);
+  color: rgba(232, 238, 252, 0.82);
+}
+
+.role-badge.role-owner {
+  border-color: rgba(90, 255, 220, 0.22);
+  background: rgba(90, 255, 220, 0.08);
+}
+
+.role-badge.role-admin {
+  border-color: rgba(90, 120, 255, 0.26);
+  background: rgba(90, 120, 255, 0.08);
+}
+
+.role-badge.role-member {
+  border-color: rgba(232, 238, 252, 0.14);
+  background: rgba(10, 14, 22, 0.30);
+}
+
+/* Role action button + select */
+.role-change-btn {
+  border-radius: 999px;
+  padding: 6px 10px;
+}
+
+.member-role-select {
+  width: 150px;
+  border-radius: 999px;
+}
+
+/* Meta row */
+.member-meta {
+  margin-top: 10px;
+}
+
+.member-wins {
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 750;
+}
+
+.member-spacer {
+  flex: 1 1 auto;
+}
+
+/* Subtle inner glow accent */
+.member-glow {
+  position: absolute;
+  inset: -40px;
+  pointer-events: none;
+  background:
+    radial-gradient(220px 170px at 15% 10%, rgba(90, 120, 255, 0.16), transparent 60%),
+    radial-gradient(200px 160px at 100% 90%, rgba(255, 90, 180, 0.08), transparent 60%);
+  opacity: 0.9;
+}
+
+/* ======================
+   Bootstrap skin (local)
+====================== */
+:host ::ng-deep .btn {
+  border-radius: 14px;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep .btn-outline-primary {
+  border-color: rgba(90, 120, 255, 0.30);
+  color: rgba(232, 238, 252, 0.85);
+  background: rgba(90, 120, 255, 0.06);
+}
+
+:host ::ng-deep .btn-outline-primary:hover:enabled {
+  border-color: rgba(90, 120, 255, 0.45);
+  background: rgba(90, 120, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+:host ::ng-deep .btn-outline-success {
+  border-color: rgba(90, 255, 220, 0.28);
+  color: rgba(232, 238, 252, 0.86);
+  background: rgba(90, 255, 220, 0.06);
+}
+
+:host ::ng-deep .btn-outline-success:hover:enabled {
+  border-color: rgba(90, 255, 220, 0.40);
+  background: rgba(90, 255, 220, 0.10);
+  transform: translateY(-1px);
+}
+
+:host ::ng-deep .btn-outline-danger {
+  border-color: rgba(255, 90, 180, 0.28);
+  color: rgba(232, 238, 252, 0.86);
+  background: rgba(255, 90, 180, 0.06);
+}
+
+:host ::ng-deep .btn-outline-danger:hover:enabled {
+  border-color: rgba(255, 90, 180, 0.40);
+  background: rgba(255, 90, 180, 0.10);
+  transform: translateY(-1px);
+}
+
+:host ::ng-deep .btn-outline-secondary {
+  border-color: rgba(232, 238, 252, 0.16);
+  color: rgba(232, 238, 252, 0.82);
+  background: rgba(10, 14, 22, 0.20);
+}
+
+:host ::ng-deep .btn-outline-secondary:hover:enabled {
+  border-color: rgba(90, 120, 255, 0.35);
+  background: rgba(90, 120, 255, 0.10);
+  transform: translateY(-1px);
+}
+
+:host ::ng-deep .btn-outline-light {
+  border-color: rgba(232, 238, 252, 0.16);
+  color: rgba(232, 238, 252, 0.78);
+  background: rgba(10, 14, 22, 0.18);
+}
+
+:host ::ng-deep .form-select,
+:host ::ng-deep .form-control {
+  border-radius: 14px;
+  border: 1px solid rgba(232, 238, 252, 0.14);
+  background: rgba(10, 14, 22, 0.55);
+  color: rgba(232, 238, 252, 0.92);
+}
+
+:host ::ng-deep .form-select:focus,
+:host ::ng-deep .form-control:focus {
+  border-color: rgba(90, 120, 255, 0.45);
+  box-shadow: 0 0 0 6px rgba(90, 120, 255, 0.08);
+}
+
+/* ===== Reward offer image tiles: don't inherit ellipsis/text styles ===== */
+.reward-grid-tile {
+  display: block;
+  overflow: hidden;
+  text-overflow: unset;
+  white-space: normal;
+}
+
+.reward-grid-tile img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* If you have any global "truncate" styles, kill them inside the reward area */
+.reward-offer-scope * {
+  text-overflow: unset !important;
+  white-space: normal !important;
+}
+
+/* Fallback label should never ellipsize */
+.reward-no-image {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}

@@ -31,6 +31,7 @@ type CollectionItem = {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './cube-collection.component.html',
+    styleUrls: ['./cube-collection.component.css'],
 })
 export class CubeCollectionComponent implements OnInit {
   cubeId = 0;

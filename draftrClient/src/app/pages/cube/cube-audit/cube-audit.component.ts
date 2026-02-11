@@ -14,6 +14,7 @@ import { Page } from '../../../models/page';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './cube-audit.component.html',
+  styleUrls: ['./cube-audit.component.css'],
 })
 export class CubeAuditComponent implements OnInit {
   cubeId = 0;

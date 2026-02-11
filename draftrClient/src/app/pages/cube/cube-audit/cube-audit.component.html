@@ -1,70 +1,80 @@
-<h2 class="h5 mb-3">Audit Log</h2>
-
-<div *ngIf="loading" class="text-muted">
-  Loading…
-</div>
-
-<div *ngIf="error" class="alert alert-danger">
-  {{ error }}
-</div>
-
-<div *ngIf="!loading && !error && events.length === 0"
-     class="alert alert-info">
-  No events yet.
-</div>
-
-<div *ngIf="!loading && !error && events.length > 0">
-
-  <div class="list-group mb-3">
-
-    <div class="list-group-item" *ngFor="let e of events">
-
-      <div class="d-flex justify-content-between">
-        <div class="fw-semibold">
-          {{ e.eventType }}
-        </div>
-
-        <div class="text-muted small">
-          {{ e.createdAt | date:'medium' }}
-        </div>
-      </div>
-
-      <div class="small mt-1">
-        {{ e.summary }}
-      </div>
-
-      <div class="text-muted small mt-1 d-flex flex-wrap gap-3">
-        <div>Actor: {{ actorName(e.actorUserId) }}</div>
-        <div *ngIf="e.targetUserId != null">Target: {{ targetName(e.targetUserId) }}</div>
-        <div *ngIf="e.cardId != null">Card: {{ cardName(e.cardId) }} ({{ e.cardId }})</div>
-      </div>
-
-    </div>
-
+<div class="audit-wrap">
+  <div class="audit-head">
+    <h2 class="h5 mb-0">Audit Log</h2>
+    <div class="text-muted small">Recent cube events.</div>
   </div>
 
-  <!-- Pagination -->
-  <div class="d-flex justify-content-between">
+  <div *ngIf="loading" class="audit-state">
+    Loading…
+  </div>
 
-    <button
-      class="btn btn-outline-secondary btn-sm"
-      (click)="prev()"
-      [disabled]="page === 0"
-    >
-      ← Prev
-    </button>
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
 
-    <div class="text-muted small align-self-center">
-      Page {{ page + 1 }} / {{ totalPages }}
+  <div *ngIf="!loading && !error && events.length === 0"
+       class="alert alert-info">
+    No events yet.
+  </div>
+
+  <div *ngIf="!loading && !error && events.length > 0">
+
+    <div class="list-group audit-list mb-3">
+
+      <div class="list-group-item audit-item" *ngFor="let e of events">
+
+        <div class="d-flex justify-content-between gap-3">
+          <div class="fw-semibold audit-type">
+            {{ e.eventType }}
+          </div>
+
+          <div class="text-muted small audit-time">
+            {{ e.createdAt | date:'medium' }}
+          </div>
+        </div>
+
+        <div class="small mt-1 audit-summary">
+          {{ e.summary }}
+        </div>
+
+        <div class="text-muted small mt-2 d-flex flex-wrap gap-3 audit-meta">
+          <div>Actor: <span class="audit-meta-val">{{ actorName(e.actorUserId) }}</span></div>
+          <div *ngIf="e.targetUserId != null">
+            Target: <span class="audit-meta-val">{{ targetName(e.targetUserId) }}</span>
+          </div>
+          <div *ngIf="e.cardId != null">
+            Card: <span class="audit-meta-val">{{ cardName(e.cardId) }} ({{ e.cardId }})</span>
+          </div>
+        </div>
+
+      </div>
+
     </div>
 
-    <button
-      class="btn btn-outline-secondary btn-sm"
-      (click)="next()"
-      [disabled]="page >= totalPages - 1"
-    >
-      Next →
-    </button>
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center audit-pager">
 
+      <button
+        class="btn btn-outline-secondary btn-sm"
+        (click)="prev()"
+        [disabled]="page === 0"
+      >
+        ← Prev
+      </button>
+
+      <div class="text-muted small">
+        Page <span class="audit-meta-val">{{ page + 1 }}</span> /
+        <span class="audit-meta-val">{{ totalPages }}</span>
+      </div>
+
+      <button
+        class="btn btn-outline-secondary btn-sm"
+        (click)="next()"
+        [disabled]="page >= totalPages - 1"
+      >
+        Next →
+      </button>
+
+    </div>
   </div>
 </div>

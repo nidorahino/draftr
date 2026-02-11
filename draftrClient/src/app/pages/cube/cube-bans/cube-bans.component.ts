@@ -10,6 +10,7 @@ import { CubeCardDetails } from '../../../models/cube-card-details';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './cube-bans.component.html',
+    styleUrls: ['./cube-bans.component.css'],
 })
 export class CubeBansComponent implements OnInit {
   cubeId = 0;
