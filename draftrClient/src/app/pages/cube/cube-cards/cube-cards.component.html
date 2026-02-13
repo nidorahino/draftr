@@ -461,26 +461,23 @@
     <!-- Image grid view -->
     <div *ngIf="viewMode === 'image'" class="row g-2">
       <div class="col-6 col-sm-4 col-md-3 col-lg-2" *ngFor="let c of filteredCards">
-        <div
-          class="position-relative shadow-sm rounded overflow-hidden"
-          style="cursor:pointer;"
-          (click)="select(c)"
-          [class.border]="isSelected(c.cardId)"
-          [class.border-primary]="isSelected(c.cardId)"
-        >
-          <img
-            *ngIf="c.imageUrl"
-            [src]="c.imageUrl"
-            class="w-100 d-block"
-            alt="card"
-            style="aspect-ratio: 3 / 4; object-fit: contain;"
-          />
+<div
+  class="pool-tile position-relative"
+  (click)="select(c)"
+  [class.is-selected]="isSelected(c.cardId)"
+>
+<img
+  *ngIf="c.imageUrl"
+  [src]="c.imageUrl"
+  class="card-img"
+  alt="card"
+/>
 
-          <div *ngIf="!c.imageUrl"
-               class="d-flex align-items-center justify-content-center text-muted"
-               style="aspect-ratio: 3 / 4;">
-            No image
-          </div>
+<div *ngIf="!c.imageUrl"
+     class="pool-noimg d-flex align-items-center justify-content-center text-muted">
+  No image
+</div>
+
 
           <img
             *ngIf="c.banned"
@@ -530,10 +527,11 @@
         </div>
       </div>
 
-      <div class="border rounded p-2 small flex-grow-1 mb-3"
-           style="overflow-y:auto; background:#fafafa;">
-        {{ s.description ?? 'No description.' }}
-      </div>
+<div class="border rounded p-2 small flex-grow-1 mb-3 details-desc"
+     style="overflow-y:auto;">
+  {{ s.description ?? 'No description.' }}
+</div>
+
 
         <!-- Stats -->
         <div

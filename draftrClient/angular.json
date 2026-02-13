@@ -46,12 +46,25 @@
               ],
               "outputHashing": "all"
             },
+
             "development": {
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            },
+
+            "local": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.local.ts"
+                }
+              ],
+              "optimization": false,
+              "sourceMap": true
             }
-          },
+          }
+          ,
           "defaultConfiguration": "production"
         },
         "serve": {
@@ -60,8 +73,13 @@
             "production": {
               "buildTarget": "draftrClient:build:production"
             },
+
             "development": {
               "buildTarget": "draftrClient:build:development"
+            },
+
+            "local": {
+              "buildTarget": "draftrClient:build:local"
             }
           },
           "options": {

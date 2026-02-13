@@ -13,7 +13,8 @@
 
   <div class="d-flex gap-2 align-items-center">
     <!-- Admin: user switch -->
-    <div *ngIf="isAdmin()" class="input-group input-group-sm" style="width: 260px;">
+    <div *ngIf="isAdmin()" class="input-group input-group-sm user-switch">
+
       <span class="input-group-text">User</span>
       <select class="form-select"
               [ngModel]="activeUserId"
@@ -261,25 +262,23 @@
     <div *ngIf="viewMode === 'image'" class="row g-2">
       <div class="col-6 col-sm-4 col-md-3 col-lg-2" *ngFor="let it of filteredItems">
         <div
-          class="position-relative shadow-sm rounded overflow-hidden"
-          style="cursor:pointer;"
-          (click)="select(it)"
-          [class.border]="isSelected(it.cardId)"
-          [class.border-primary]="isSelected(it.cardId)"
-        >
-          <img
-            *ngIf="it.details?.imageUrl"
-            [src]="it.details?.imageUrl"
-            class="w-100 d-block"
-            alt="card"
-            style="aspect-ratio: 3 / 4; object-fit: contain;"
-          />
+  class="pool-tile position-relative"
+  (click)="select(it)"
+  [class.is-selected]="isSelected(it.cardId)"
+>
+  <img
+    *ngIf="it.details?.imageUrl"
+    [src]="it.details?.imageUrl"
+    class="card-img"
+    alt="card"
+  />
 
-          <div *ngIf="!it.details?.imageUrl"
-               class="d-flex align-items-center justify-content-center text-muted"
-               style="aspect-ratio: 3 / 4;">
-            No image
-          </div>
+  <div
+    *ngIf="!it.details?.imageUrl"
+    class="pool-noimg d-flex align-items-center justify-content-center text-muted"
+  >
+    No image
+  </div>
 
           <img
             *ngIf="it.banned"
@@ -372,8 +371,8 @@
           </div>
         </div>
 
-        <div class="border rounded p-2 small flex-grow-1 mb-3"
-            style="overflow-y:auto; background:#fafafa;">
+<div class="border rounded p-2 small flex-grow-1 mb-3 details-desc"
+     style="overflow-y:auto;">
           {{ selected.details?.description ?? 'No description.' }}
         </div>
 

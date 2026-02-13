@@ -84,7 +84,8 @@
   </div>
 </div>
 
-<!-- Reward offer panel (winner pick-2, image-only) -->
+
+<!-- Reward offer panel (winner pick-2 / loser ban) -->
 <div *ngIf="showingRewardOffer" class="panel mb-3">
   <div class="panel-head d-flex justify-content-between align-items-center">
     <div class="panel-title">
@@ -114,13 +115,101 @@
   </div>
 
   <div class="panel-body">
-    <!-- keep the rest of your reward content exactly the same -->
-    ...
+    <!-- Loading -->
+    <div *ngIf="loadingRewardOffer" class="text-muted small">
+      Loading cards…
+    </div>
+
+    <!-- Empty -->
+    <div *ngIf="!loadingRewardOffer && rewardOfferCards.length === 0" class="text-muted small">
+      No cards in this offer.
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="!loadingRewardOffer && rewardOfferCards.length > 0" class="row g-3">
+      <!-- Left: card grid -->
+      <div class="col-12 col-lg-8">
+        <div class="row g-2">
+          <div class="col-4 col-sm-3 col-md-2" *ngFor="let c of rewardOfferCards">
+            <button
+              type="button"
+              class="btn p-0 w-100 border rounded overflow-hidden position-relative"
+              (click)="selectRewardDetail(c)"
+              [class.border-primary]="rewardSelectedDetail?.cardId === c.cardId"
+              [class.border-2]="rewardSelectedDetail?.cardId === c.cardId"
+              [disabled]="applyingReward"
+              style="background: transparent;"
+              title="{{ c?.name || ('Card #' + c?.cardId) }}"
+            >
+              <img
+                [src]="c?.imageUrl"
+                [alt]="c?.name || ('Card #' + c?.cardId)"
+                class="img-fluid d-block"
+                style="aspect-ratio: 1/1; object-fit: contain; background: rgba(255,255,255,0.04);"
+              />
+
+              <!-- Pick toggle -->
+              <span
+                class="position-absolute bottom-0 end-0 m-1 badge"
+                [class.text-bg-success]="isPicked(c.cardId)"
+                [class.text-bg-secondary]="!isPicked(c.cardId)"
+                (click)="$event.stopPropagation(); togglePick(c.cardId)"
+                style="cursor: pointer;"
+                title="Pick"
+              >
+                {{ isPicked(c.cardId) ? 'Picked' : 'Pick' }}
+              </span>
+            </button>
+
+            <div class="small text-muted mt-1 text-truncate">
+              {{ c?.name || ('Card #' + c?.cardId) }}
+            </div>
+          </div>
+        </div>
+
+        <div class="text-muted small mt-2">
+          <span *ngIf="rewardMode === 'WINNER_PICK2'">Pick exactly {{ rewardPickLimit }}.</span>
+          <span *ngIf="rewardMode === 'LOSER_BAN'">Pick 1 to {{ rewardPickLimit }}. System will ban 1 at random.</span>
+        </div>
+      </div>
+
+      <!-- Right: details -->
+      <div class="col-12 col-lg-4">
+        <div class="border rounded p-2">
+          <div class="fw-semibold mb-1">
+            {{ rewardSelectedDetail?.name || ('Card #' + rewardSelectedDetail?.cardId) }}
+          </div>
+
+          <div class="text-muted small mb-2" *ngIf="rewardSelectedDetail?.humanReadableCardType">
+            {{ rewardSelectedDetail.humanReadableCardType }}
+          </div>
+
+          <img
+            *ngIf="rewardSelectedDetail?.imageUrl"
+            [src]="rewardSelectedDetail.imageUrl"
+            [alt]="rewardSelectedDetail?.name || ('Card #' + rewardSelectedDetail?.cardId)"
+            class="img-fluid rounded mb-2"
+            style="background: rgba(255,255,255,0.04);"
+          />
+
+          <div class="small" *ngIf="rewardSelectedDetail?.description">
+            {{ rewardSelectedDetail.description }}
+          </div>
+
+          <div class="text-muted small mt-2"
+               *ngIf="rewardSelectedDetail?.atk != null || rewardSelectedDetail?.def != null">
+            ATK {{ rewardSelectedDetail?.atk ?? '-' }} / DEF {{ rewardSelectedDetail?.def ?? '-' }}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
+
 <!-- Add member (Admin/Owner only) -->
-<div *ngIf="!loading && isAdmin()" class="panel mb-3">
+<div *ngIf="!loading && !showingRewardOffer && isAdmin()" class="panel mb-3">
+
   <div class="panel-body">
     <div class="row g-2 align-items-center">
       <!-- Left: title -->
@@ -167,19 +256,26 @@
   {{ error }}
 </div>
 
+<!-- Spin result banner -->
+<div *ngIf="spinResultText" class="alert alert-success py-2 mb-3">
+  {{ spinResultText }}
+</div>
+
 <!-- Loading -->
 <div *ngIf="loading" class="text-muted small">
   Loading…
 </div>
 
 <!-- Empty state -->
-<div *ngIf="!loading && members.length === 0" class="text-muted small">
+<div *ngIf="!loading && !showingRewardOffer && members.length === 0" class="text-muted small">
+
   No members yet.
 </div>
 
 <!-- Members list -->
 <!-- Members cards -->
-<div *ngIf="!loading && members.length > 0" class="row g-3 members-grid">
+<div *ngIf="!loading && !showingRewardOffer && members.length > 0" class="row g-3 members-grid">
+
 
 <div class="col-12 col-md-6 col-xl-4" *ngFor="let m of members">
   <div class="member-card">

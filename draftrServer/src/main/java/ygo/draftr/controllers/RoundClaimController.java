@@ -51,8 +51,8 @@ public class RoundClaimController {
     public ResponseEntity<?> applyWinnerSpin(@PathVariable Long cubeId, @RequestBody ApplyWinnerPickRequest req) {
         Long actorUserId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         try {
-            roundClaims.applyWinnerSpin(cubeId, actorUserId, req.getSelectedCardIds());
-            return ResponseEntity.ok().build();
+            var resp = roundClaims.applyWinnerSpin(cubeId, actorUserId, req.getSelectedCardIds());
+            return ResponseEntity.ok(resp);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }

@@ -1,0 +1,153 @@
+:host { display: block; }
+
+:host ::ng-deep .text-muted {
+  color: rgba(232, 238, 252, 0.60) !important;
+}
+
+/* ========= Glass tokens ========= */
+:host {
+  --glass-bg: rgba(15, 20, 32, 0.55);
+  --glass-bg-2: rgba(10, 14, 22, 0.22);
+  --glass-border: rgba(232, 238, 252, 0.12);
+  --glass-border-2: rgba(232, 238, 252, 0.10);
+  --text: rgba(232, 238, 252, 0.92);
+  --text-2: rgba(232, 238, 252, 0.78);
+  --shadow: 0 18px 50px rgba(0,0,0,0.40);
+}
+
+/* ========= Make Bootstrap cards "glass" ========= */
+:host ::ng-deep .card {
+  border-radius: 18px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+  color: var(--text);
+}
+
+:host ::ng-deep .card-header {
+  border-bottom: 1px solid var(--glass-border-2);
+  background: rgba(10, 14, 22, 0.18);
+  color: var(--text);
+}
+
+:host ::ng-deep .card-body {
+  color: var(--text);
+}
+
+/* ========= List group glass ========= */
+:host ::ng-deep .list-group-item {
+  border: 1px solid var(--glass-border-2);
+  background: rgba(10, 14, 22, 0.18);
+  color: var(--text);
+}
+
+:host ::ng-deep .list-group-item + .list-group-item {
+  margin-top: 8px;
+  border-radius: 14px;
+}
+
+:host ::ng-deep .list-group-item-action:hover {
+  background: rgba(90, 120, 255, 0.10);
+  border-color: rgba(90, 120, 255, 0.25);
+}
+
+:host ::ng-deep .list-group-item.active {
+  background: rgba(90, 120, 255, 0.16);
+  border-color: rgba(90, 120, 255, 0.35);
+  color: var(--text);
+}
+
+/* ========= Alerts: dark (no white blocks) ========= */
+:host ::ng-deep .alert {
+  border-radius: 14px;
+  border: 1px solid var(--glass-border);
+  background: rgba(10, 14, 22, 0.30);
+  color: var(--text);
+}
+
+/* ========= Inputs (match your other components) ========= */
+:host ::ng-deep .form-select,
+:host ::ng-deep .form-control,
+:host ::ng-deep .input-group-text {
+  border-radius: 14px;
+  border: 1px solid rgba(232, 238, 252, 0.14);
+  background: rgba(10, 14, 22, 0.55);
+  color: rgba(232, 238, 252, 0.92);
+}
+
+:host ::ng-deep .input-group-text {
+  color: rgba(232, 238, 252, 0.78);
+}
+
+:host ::ng-deep .form-select:focus,
+:host ::ng-deep .form-control:focus {
+  border-color: rgba(90, 120, 255, 0.45);
+  box-shadow: 0 0 0 6px rgba(90, 120, 255, 0.08);
+}
+
+/* ========= Buttons: consistent rounding ========= */
+:host ::ng-deep .btn { border-radius: 14px; box-shadow: none !important; }
+
+/* ========= Header row helpers ========= */
+.user-switch {
+  width: 260px;
+  max-width: 100%;
+}
+
+/* ========= Image tiles (dark glass tile) ========= */
+.pool-tile {
+  cursor: pointer;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(232, 238, 252, 0.12);
+  background: rgba(15, 20, 32, 0.55);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.pool-tile:hover {
+  transform: translateY(-1px);
+  border-color: rgba(90, 120, 255, 0.30);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+}
+
+.pool-tile.is-selected {
+  border-color: rgba(90, 120, 255, 0.55);
+  box-shadow:
+    0 0 0 3px rgba(90, 120, 255, 0.16),
+    0 6px 14px rgba(0,0,0,0.35);
+}
+
+.card-img {
+  width: 100%;
+  display: block;
+  aspect-ratio: 3 / 4;
+  object-fit: contain;
+  background: rgba(10, 14, 22, 0.35);
+}
+
+.pool-noimg {
+  aspect-ratio: 3 / 4;
+}
+
+/* ========= Details description: remove white (#fafafa) ========= */
+.details-desc {
+  border: 1px solid rgba(232, 238, 252, 0.12) !important;
+  background: rgba(10, 14, 22, 0.35) !important;
+  color: rgba(232, 238, 252, 0.86);
+}
+
+/* ========= Your banned icon (exact one you liked) ========= */
+.banned-icon {
+  filter:
+    drop-shadow(0 2px 6px rgba(0,0,0,0.55))
+    brightness(0) saturate(100%)
+    invert(14%) sepia(96%) saturate(6200%) hue-rotate(350deg) brightness(95%) contrast(120%)
+    drop-shadow(1px 0 0 #000)
+    drop-shadow(-1px 0 0 #000)
+    drop-shadow(0 1px 0 #000)
+    drop-shadow(0 -1px 0 #000)
+    drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}

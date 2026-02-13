@@ -1,10 +1,7 @@
 package ygo.draftr.domain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ygo.draftr.controllers.dto.ApplyLoserPickResponse;
-import ygo.draftr.controllers.dto.LoserOfferResponse;
-import ygo.draftr.controllers.dto.PendingSpinResponse;
-import ygo.draftr.controllers.dto.WinnerOfferResponse;
+import ygo.draftr.controllers.dto.*;
 import ygo.draftr.data.*;
 import ygo.draftr.models.*;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -158,7 +155,7 @@ public class RoundClaimService {
     }
 
     @Transactional
-    public void applyWinnerSpin(Long cubeId, Long actorUserId, List<Long> selectedCardIds) {
+    public ApplyWinnerPickResponse applyWinnerSpin(Long cubeId, Long actorUserId, List<Long> selectedCardIds) {
         requireMembership(cubeId, actorUserId);
 
         if (selectedCardIds == null) throw new IllegalArgumentException("selectedCardIds is required");
@@ -173,7 +170,13 @@ public class RoundClaimService {
             throw new IllegalArgumentException("You are not the winner for the pending round.");
         }
         if (rc.isWinnerSpinClaimed()) {
-            return; // idempotent
+            List<Long> prev = findWinnerAppliedCardIds(cubeId, rc.getRoundClaimId());
+
+            if (prev == null) {
+                throw new IllegalStateException("Winner spin already applied but no record found.");
+            }
+
+            return new ApplyWinnerPickResponse(prev);
         }
 
         List<Long> offer = findWinnerOfferCardIds(cubeId, rc.getRoundClaimId());
@@ -191,7 +194,6 @@ public class RoundClaimService {
             addOneToCollection(cubeId, actorUserId, cardId);
         }
 
-        // mark claimed
         rc.setWinnerSpinClaimed(true);
         roundClaimRepo.save(rc);
 
@@ -208,6 +210,8 @@ public class RoundClaimService {
 
         // this will increment wins only when BOTH spins claimed
         maybeApply(rc);
+
+        return new ApplyWinnerPickResponse(picks);
     }
 
     private List<Long> generateWinnerOffer(Long cubeId, int max) {
@@ -460,4 +464,23 @@ public class RoundClaimService {
         rc.setAppliedAt(Instant.now());
         roundClaimRepo.save(rc);
     }
+
+    private List<Long> findWinnerAppliedCardIds(Long cubeId, Long roundClaimId) {
+        var page = eventRepo.findByCubeIdOrderByCreatedAtDesc(
+                cubeId,
+                org.springframework.data.domain.PageRequest.of(0, 200)
+        );
+
+        for (CubeEvent e : page.getContent()) {
+            if (!"WINNER_SPIN_APPLIED".equals(e.getEventType())) continue;
+
+            Long rcId = extractLong(e.getPayload(), "roundClaimId");
+            if (rcId == null || !rcId.equals(roundClaimId)) continue;
+
+            return extractLongList(e.getPayload(), "selectedCardIds");
+        }
+
+        return null;
+    }
+
 }

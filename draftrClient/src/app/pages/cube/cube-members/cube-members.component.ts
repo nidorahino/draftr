@@ -47,6 +47,7 @@ export class CubeMembersComponent implements OnInit {
   checkingWheel = false;
   claimingLoserSpin = false;
   claimingWinnerSpin = false;
+  spinResultText: string | null = null;
 
   // ===== Reward offer UI (winner for now, structured for reuse later) =====
   showingRewardOffer = false;
@@ -301,6 +302,7 @@ export class CubeMembersComponent implements OnInit {
   }
 
   openWinnerSpin(): void {
+    this.spinResultText = null;
     this.rewardMode = 'WINNER_PICK2';
     this.error = null;
     this.startingWinnerSpin = true;
@@ -426,15 +428,21 @@ confirmReward(): void {
       error: fail,
     });
   } else {
-    this.cubes.applyLoserSpin(this.cubeId, selected).subscribe({
-      next: (_r) => {
-        // optional: show a quick message
-        // this.successMessage = `Banned card #${_r?.bannedCardId}`;
-        done();
-      },
-      error: fail,
-    });
-  }
+  this.cubes.applyLoserSpin(this.cubeId, selected).subscribe({
+    next: (r: any) => {
+      const bannedId = r?.bannedCardId;
+
+      if (bannedId != null) {
+        this.setSpinResult(`🚫 System banned: ${this.cardLabel(Number(bannedId))}`);
+      } else {
+        this.setSpinResult(`🚫 System banned a card.`);
+      }
+
+      done();
+    },
+    error: fail,
+  });
+}
 }
 
   closeRewardOffer(): void {
@@ -446,6 +454,7 @@ confirmReward(): void {
   }
 
   openLoserSpin(): void {
+    this.spinResultText = null;
     this.rewardMode = 'LOSER_BAN';
     this.error = null;
     this.loadingRewardOffer = true;
@@ -492,5 +501,21 @@ canConfirmReward(): boolean {
     return this.rewardPickedIds.size >= 1 && this.rewardPickedIds.size <= this.rewardPickLimit;
   }
   return this.rewardPickedIds.size === this.rewardPickLimit;
+}
+
+private clearSpinResultTimer: any = null;
+
+private setSpinResult(text: string): void {
+  this.spinResultText = text;
+  // optional auto-clear
+  setTimeout(() => {
+    // only clear if it hasn't been overwritten
+    if (this.spinResultText === text) this.spinResultText = null;
+  }, 8000);
+}
+
+private cardLabel(cardId: number): string {
+  const found = (this.rewardOfferCards ?? []).find((c: any) => c?.cardId === cardId);
+  return found?.name ? `${found.name} (#${cardId})` : `Card #${cardId}`;
 }
 }

@@ -1,0 +1,156 @@
+:host { display: block; }
+
+:host ::ng-deep .text-muted {
+  color: rgba(232, 238, 252, 0.60) !important;
+}
+
+/* ===== Shared panel (same as your other components) ===== */
+.panel {
+  border-radius: 18px;
+  border: 1px solid rgba(232, 238, 252, 0.12);
+  background: rgba(15, 20, 32, 0.55);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  box-shadow:
+    0 18px 50px rgba(0,0,0,0.40),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.panel-head {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(232, 238, 252, 0.10);
+  background: rgba(10, 14, 22, 0.18);
+}
+
+.panel-body { padding: 14px 14px; }
+
+.panel-title {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  letter-spacing: 0.18em;
+  padding-left: 0.18em;
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: 0.88rem;
+  color: rgba(232, 238, 252, 0.90);
+}
+
+.panel-sub {
+  letter-spacing: 0;
+  padding-left: 0;
+  text-transform: none;
+  font-weight: 650;
+  font-size: 0.85rem;
+  color: rgba(232, 238, 252, 0.58);
+}
+
+/* ===== List view (keep bootstrap, darken it) ===== */
+:host ::ng-deep .ban-list .list-group-item {
+  background: rgba(10, 14, 22, 0.10);
+  color: rgba(232, 238, 252, 0.92);
+  border-color: rgba(232, 238, 252, 0.08);
+}
+
+:host ::ng-deep .ban-list .list-group-item:hover {
+  background: rgba(90, 120, 255, 0.08);
+}
+
+:host ::ng-deep .ban-list .list-group-item.active {
+  background: rgba(90, 120, 255, 0.16) !important;
+  border-color: rgba(90, 120, 255, 0.30) !important;
+  color: rgba(232, 238, 252, 0.98) !important;
+}
+
+/* utility since bootstrap doesn't always include min-w-0 */
+.min-w-0 { min-width: 0; }
+
+/* ===== Image tiles (same behavior as your wheel/draft tiles) ===== */
+.ban-tile {
+  position: relative;
+  cursor: pointer;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(232, 238, 252, 0.10);
+  background: rgba(10, 14, 22, 0.30);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.ban-tile:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 90, 180, 0.28);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.35);
+}
+
+.ban-tile.is-selected {
+  border-color: rgba(255, 90, 180, 0.55);
+  box-shadow: 0 0 0 4px rgba(255, 90, 180, 0.10);
+}
+
+.ban-tile-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 3 / 4;
+}
+
+/* If your banned.svg is a black icon and you want it red w/ black border */
+.banned-icon {
+  /* turn the icon red (works great if the svg is solid/mono) */
+  filter:
+    drop-shadow(0 2px 6px rgba(0,0,0,0.55))
+    brightness(0) saturate(100%)
+    invert(14%) sepia(96%) saturate(6200%) hue-rotate(350deg) brightness(95%) contrast(120%)
+    drop-shadow(1px 0 0 #000)
+    drop-shadow(-1px 0 0 #000)
+    drop-shadow(0 1px 0 #000)
+    drop-shadow(0 -1px 0 #000)
+    drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+
+}
+
+
+/* ===== Description block (replace inline background:#fafafa) ===== */
+.ban-desc {
+  border: 1px solid rgba(232, 238, 252, 0.14);
+  background: rgba(10, 14, 22, 0.22);
+  border-radius: 14px;
+  padding: 10px;
+  font-size: 0.9rem;
+  color: rgba(232, 238, 252, 0.88);
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 320px;
+}
+
+/* ===== Bootstrap skin (buttons / inputs) ===== */
+:host ::ng-deep .btn {
+  border-radius: 14px;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep .btn-outline-secondary {
+  border-color: rgba(232, 238, 252, 0.16);
+  color: rgba(232, 238, 252, 0.82);
+  background: rgba(10, 14, 22, 0.20);
+}
+
+:host ::ng-deep .btn-outline-secondary:hover:enabled,
+:host ::ng-deep .btn-outline-secondary.active {
+  border-color: rgba(90, 120, 255, 0.35);
+  background: rgba(90, 120, 255, 0.10);
+}
+
+:host ::ng-deep .form-select,
+:host ::ng-deep .form-control {
+  border-radius: 14px;
+  border: 1px solid rgba(232, 238, 252, 0.14);
+  background: rgba(10, 14, 22, 0.55);
+  color: rgba(232, 238, 252, 0.92);
+}
+
+:host ::ng-deep .form-select:focus,
+:host ::ng-deep .form-control:focus {
+  border-color: rgba(90, 120, 255, 0.45);
+  box-shadow: 0 0 0 6px rgba(90, 120, 255, 0.08);
+}

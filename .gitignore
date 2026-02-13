@@ -8,6 +8,9 @@
 *.pem
 *.key
 
+# Angular local environment
+src/environments/environment.local.ts
+
 # Logs
 *.log
 
