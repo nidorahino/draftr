@@ -343,10 +343,9 @@ public class RoundClaimService {
         }
 
         List<Long> offer = new ArrayList<>(uniqueCardIds);
+
+        // optional: shuffle display order, but DO NOT truncate
         Collections.shuffle(offer);
-        if (offer.size() > 8) {
-            offer = offer.subList(0, 8);
-        }
 
         writeEvent(
                 cubeId,
@@ -367,62 +366,75 @@ public class RoundClaimService {
     }
 
     @Transactional
-    public ApplyLoserPickResponse applyLoserSpin(Long cubeId, Long actorUserId, java.util.List<Long> selectedCardIds) {
+    public ApplyLoserPickResponse applyLoserSpin(Long cubeId, Long actorUserId, List<Long> selectedCardIds) {
+
         requireMembership(cubeId, actorUserId);
 
-        if (selectedCardIds == null) throw new IllegalArgumentException("selectedCardIds is required");
+        if (selectedCardIds == null)
+            throw new IllegalArgumentException("selectedCardIds is required");
 
         List<Long> picks = selectedCardIds.stream()
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
 
-        if (picks.isEmpty()) throw new IllegalArgumentException("Select at least 1 card.");
-        if (picks.size() > 8) throw new IllegalArgumentException("You can select at most 8 cards.");
-
         RoundClaim rc = roundClaimRepo.findPendingForUpdateList(cubeId).stream()
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("No pending round."));
 
-        if (!actorUserId.equals(rc.getLoserUserId())) {
+        if (!actorUserId.equals(rc.getLoserUserId()))
             throw new IllegalArgumentException("You are not the loser for the pending round.");
-        }
-        if (rc.isLoserSpinClaimed()) {
+
+        if (rc.isLoserSpinClaimed())
             throw new IllegalArgumentException("Loser spin already claimed.");
-        }
 
         List<Long> offer = findLoserOfferCardIds(cubeId, rc.getRoundClaimId());
-        if (offer == null) {
+
+        if (offer == null)
             throw new IllegalArgumentException("No loser offer exists yet. Start the loser spin first.");
-        }
 
+
+        // ✅ enforce exact picks
+        int required = offer.size() >= 8 ? 8 : offer.size();
+
+        if (picks.size() != required)
+            throw new IllegalArgumentException("Pick exactly " + required + " cards.");
+
+
+        // validate picks belong to offer
         Set<Long> offerSet = new HashSet<>(offer);
-        for (Long pick : picks) {
-            if (!offerSet.contains(pick)) {
-                throw new IllegalArgumentException("Selected card is not in the current offer.");
-            }
-        }
 
-        // Randomly ban 1 from the chosen list (1..8)
+        for (Long pick : picks)
+            if (!offerSet.contains(pick))
+                throw new IllegalArgumentException("Selected card is not in the current offer.");
+
+
+        // random ban
         Long bannedCardId = picks.get(new Random().nextInt(picks.size()));
 
-        // Apply ban in cube pool
+
         CubeCard cubeCard = cubeCardRepo.findByCubeIdAndCardId(cubeId, bannedCardId)
                 .orElseThrow(() -> new IllegalArgumentException("Card not found in cube pool."));
+
         if (!cubeCard.isBanned()) {
+
             cubeCard.setBanned(true);
+
             cubeCardRepo.save(cubeCard);
+
         }
 
-        // mark loser spin claimed
+
         rc.setLoserSpinClaimed(true);
+
         roundClaimRepo.save(rc);
+
 
         writeEvent(
                 cubeId,
                 "LOSER_SPIN_BAN_APPLIED",
                 actorUserId,
-                java.util.Map.of(
+                Map.of(
                         "roundClaimId", rc.getRoundClaimId(),
                         "opponentUserId", rc.getWinnerUserId(),
                         "selectedCardIds", picks,
@@ -430,9 +442,12 @@ public class RoundClaimService {
                 )
         );
 
+
         maybeApply(rc);
 
+
         return new ApplyLoserPickResponse(bannedCardId);
+
     }
 
     private List<Long> findLoserOfferCardIds(Long cubeId, Long roundClaimId) {

@@ -463,8 +463,8 @@ confirmReward(): void {
       next: (resp) => {
         const ids = resp?.offeredCardIds ?? [];
 
-        this.rewardTitle = 'Loser Wheel — Pick up to 8 (1 will be banned at random)';
-        this.rewardPickLimit = Math.min(8, ids.length);
+        this.rewardTitle = 'Loser Wheel — Pick up to 8 from opponent’s collection (1 will be banned at random)';
+        this.rewardPickLimit = ids.length >= 8 ? 8 : ids.length;
 
         this.rewardOfferIds = ids;
         this.rewardOfferCards = [];
