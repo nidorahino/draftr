@@ -323,10 +323,10 @@ public class RoundClaimService {
         }
 
         // idempotent: reuse existing offer for this round
-        List<Long> existing = findLoserOfferCardIds(cubeId, rc.getRoundClaimId());
-        if (existing != null) {
-            return new LoserOfferResponse(rc.getRoundClaimId(), rc.getWinnerUserId(), existing);
-        }
+//        List<Long> existing = findLoserOfferCardIds(cubeId, rc.getRoundClaimId());
+//        if (existing != null) {
+//            return new LoserOfferResponse(rc.getRoundClaimId(), rc.getWinnerUserId(), existing);
+//        }
 
         // Build offer from opponent (winner) collection: RANDOM sample up to 8 unique cardIds
         List<CubeCollectionCard> oppRows =
