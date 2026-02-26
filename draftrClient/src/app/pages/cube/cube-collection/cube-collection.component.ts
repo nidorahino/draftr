@@ -14,6 +14,9 @@ import { CubeContextService } from '../../../services/cube-context.service';
 import { CardSearchResult } from '../../../models/card-search-result';
 import { Page } from '../../../models/page';
 import { CardFilters, DEFAULT_FILTERS } from '../../../models/card-filters';
+import { CardDetailsPanelComponent } from '../../../components/card-details-panel/card-details-panel.component';
+import { CardBrowserComponent } from '../../../components/card-browser/card-browser.component';
+import { CardFiltersPanelComponent } from '../../../components/card-filters-panel/card-filters-panel.component';
 
 type CollectionItem = {
   cardId: number;
@@ -29,7 +32,7 @@ type CollectionItem = {
 @Component({
   selector: 'app-cube-collection',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CardDetailsPanelComponent, CardBrowserComponent, CardFiltersPanelComponent],
   templateUrl: './cube-collection.component.html',
     styleUrls: ['./cube-collection.component.css'],
 })
@@ -75,9 +78,12 @@ export class CubeCollectionComponent implements OnInit {
   filters: CardFilters = { ...DEFAULT_FILTERS };
   filteredItems: CollectionItem[] = [];
 
-  cardTypeOptions: string[] = [];
   attributeOptions: string[] = [];
-  raceOptions: string[] = [];
+
+  frameTypeOptions: string[] = [];
+monsterTypeOptions: string[] = [];
+spellTypeOptions: string[] = [];
+trapTypeOptions: string[] = [];
 
   private uniq(arr: string[]): string[] {
     return Array.from(new Set(arr)).sort((a, b) => a.localeCompare(b));
@@ -131,76 +137,106 @@ export class CubeCollectionComponent implements OnInit {
     });
   }
 
-  load() {
-    this.loading = true;
-    this.error = null;
+  onFiltersChange(f: CardFilters) {
+  this.filters = { ...f };
+  this.applyFilters();
+}
 
-    // 1) load card details (for names/images/types)
-    this.cubes.listCardsDetails(this.cubeId, true).subscribe({
-      next: (detailsRows: CubeCardDetails[]) => {
-        const byId = new Map<number, CubeCardDetails>();
-        for (const d of detailsRows) byId.set(d.cardId, d);
+load() {
+  this.loading = true;
+  this.error = null;
 
-        // 2) load the active user's collection
-        this.cubes.getCollection(this.cubeId, this.activeUserId).subscribe({
-          next: (rows: CubeCollectionCard[]) => {
-            this.items = rows.map((r) => ({
-              cardId: r.cardId,
-              qty: r.qty,
-              banned: r.banned,
-              updatedAt: r.updatedAt,
-              details: byId.get(r.cardId),
-            }));
+  // 1) load card details (for names/images/types)
+  this.cubes.listCardsDetails(this.cubeId, true).subscribe({
+    next: (detailsRows: CubeCardDetails[]) => {
+      const byId = new Map<number, CubeCardDetails>();
+      for (const d of detailsRows) byId.set(d.cardId, d);
 
-            const details = this.items.map(x => x.details).filter(Boolean) as CubeCardDetails[];
+      // 2) load the active user's collection
+      this.cubes.getCollection(this.cubeId, this.activeUserId).subscribe({
+        next: (rows: CubeCollectionCard[]) => {
+          this.items = rows.map((r) => ({
+            cardId: r.cardId,
+            qty: r.qty,
+            banned: r.banned,
+            updatedAt: r.updatedAt,
+            details: byId.get(r.cardId),
+          }));
 
-            this.cardTypeOptions = this.uniq(details.map(d => d.humanReadableCardType ?? d.cardType).filter(Boolean) as string[]);
-            this.attributeOptions = this.uniq(details.map(d => d.attribute).filter(Boolean) as string[]);
-            this.raceOptions = this.uniq(details.map(d => d.race).filter(Boolean) as string[]);
+          const details = this.items.map(x => x.details).filter(Boolean) as CubeCardDetails[];
 
-            this.applyFilters();
+this.frameTypeOptions = this.uniq(
+  details.map(d => d.frameType).filter(Boolean) as string[]
+);
 
-            if (this.selectAfterLoadCardId != null) {
-              const added = this.items.find(x => x.cardId === this.selectAfterLoadCardId);
-              if (added) {
-                this.select(added);
-              }
-              this.selectAfterLoadCardId = null;
+this.attributeOptions = this.uniq(
+  details.filter(d => this.isMonsterFrame(d.frameType))
+         .map(d => d.attribute)
+         .filter(Boolean) as string[]
+);
+
+this.monsterTypeOptions = this.uniq(
+  details.filter(d => this.isMonsterFrame(d.frameType))
+         .map(d => d.race)
+         .filter(Boolean) as string[]
+);
+
+this.spellTypeOptions = this.uniq(
+  details.filter(d => this.isSpellFrame(d.frameType))
+         .map(d => d.race)
+         .filter(Boolean) as string[]
+);
+
+this.trapTypeOptions = this.uniq(
+  details.filter(d => this.isTrapFrame(d.frameType))
+         .map(d => d.race)
+         .filter(Boolean) as string[]
+);
+
+          this.applyFilters();
+
+          // if we added from search, select it after refresh
+          if (this.selectAfterLoadCardId != null) {
+            const added = this.items.find(x => x.cardId === this.selectAfterLoadCardId);
+            if (added) {
+              this.select(added);
             }
+            this.selectAfterLoadCardId = null;
+          }
 
-            // keep/initialize selection
-            if (this.selected) {
-              const stillThere = this.items.find(x => x.cardId === this.selected!.cardId);
-              this.selected = stillThere ?? null;
-            }
-            if (!this.selected && this.items.length > 0) {
-              this.select(this.items[0]);
-            }
+          // ---- selection sync for CardBrowser ----
+          if (this.selectedCardId != null) {
+            this.selected = this.items.find(x => x.cardId === this.selectedCardId) ?? null;
+            if (this.selected) this.qtyDraft = this.selected.qty;
+          }
 
-            this.loading = false;
-          },
-          error: () => {
-            this.error = 'Failed to load collection.';
-            this.loading = false;
-          },
-        });
-      },
-      error: () => {
-        this.error = 'Failed to load card details.';
-        this.loading = false;
-      },
-    });
-  }
+          if (!this.selected && this.items.length > 0) {
+            this.select(this.items[0]);
+          }
 
-  select(item: CollectionItem) {
-    this.selected = item;
-    this.qtyDraft = item.qty;
-    this.selectedSearch = null;
-  }
+          this.selectedCardId = this.selected?.cardId ?? null;
 
-  isSelected(cardId: number) {
-    return this.selected?.cardId === cardId;
-  }
+          this.loading = false;
+        },
+        error: () => {
+          this.error = 'Failed to load collection.';
+          this.loading = false;
+        },
+      });
+    },
+    error: () => {
+      this.error = 'Failed to load card details.';
+      this.loading = false;
+    },
+  });
+}
+
+select(item: CollectionItem) {
+  this.selected = item;
+  this.selectedCardId = item.cardId;
+  this.qtyDraft = item.qty;
+  this.selectedSearch = null;
+}
 
   saveQty() {
     if (!this.selected) return;
@@ -255,14 +291,18 @@ export class CubeCollectionComponent implements OnInit {
     return this.activeUserId === this.myUserId || this.isAdmin();
   }
 
-  switchUser(userId: number) {
-    this.activeUserId = Number(userId);
-    this.selected = null;
-    this.qtyDraft = null;
-    this.load();
-    this.selectedSearch = null;
-    this.addQtyDraft = 1;
-  }
+switchUser(userId: number) {
+  this.activeUserId = Number(userId);
+
+  this.selected = null;
+  this.selectedCardId = null; // ✅ important for CardBrowser highlight
+  this.qtyDraft = null;
+
+  this.selectedSearch = null;
+  this.addQtyDraft = 1;
+
+  this.load();
+}
 
   loadMembersIfAdmin(cubeId: number) {
     if (!this.isAdmin() || !cubeId) return;
@@ -277,12 +317,6 @@ export class CubeCollectionComponent implements OnInit {
         this.membersLoading = false;
       },
     });
-  }
-
-  private setMembersUnique(rows: CubeMember[]) {
-    const map = new Map<number, CubeMember>();
-    for (const r of rows ?? []) map.set(r.userId, r);
-    this.members = Array.from(map.values());
   }
 
   toggleAdminTools() {
@@ -356,12 +390,15 @@ export class CubeCollectionComponent implements OnInit {
     this.runPoolSearch(this.searchName);
   }
 
-  selectSearch(r: CardSearchResult) {
-    this.selectedSearch = r;
-    this.selected = null;      // ✅ makes right panel show search card
-    this.qtyDraft = null;
-    this.addQtyDraft = 1;
-  }
+selectSearch(r: CardSearchResult) {
+  this.selectedSearch = r;
+
+  this.selected = null;
+  this.selectedCardId = null; // ✅ de-highlight CardBrowser selection
+  this.qtyDraft = null;
+
+  this.addQtyDraft = 1;
+}
 
   isSelectedSearch(id: number) {
     return this.selectedSearch?.id === id;
@@ -396,57 +433,79 @@ export class CubeCollectionComponent implements OnInit {
     });
   }
 
-  applyFilters() {
-    const f = this.filters;
+applyFilters() {
+  const f = this.filters;
 
-    const contains = (v: string | null | undefined, q: string) =>
-      (v ?? '').toLowerCase().includes(q.toLowerCase());
+  const contains = (v: string | null | undefined, q: string) =>
+    (v ?? '').toLowerCase().includes(q.toLowerCase());
 
-    const inRange = (n: number | null | undefined, min: number | null, max: number | null) => {
-      if (n == null) return false;
-      if (min != null && n < min) return false;
-      if (max != null && n > max) return false;
-      return true;
-    };
+  const eqi = (a: any, b: any) =>
+    String(a ?? '').trim().toLowerCase() === String(b ?? '').trim().toLowerCase();
 
-    let list = [...this.items];
+  const inRange = (n: number | null | undefined, min: number | null, max: number | null) => {
+    if (n == null) return false;
+    if (min != null && n < min) return false;
+    if (max != null && n > max) return false;
+    return true;
+  };
 
-    // name search
-    if (f.q.trim()) list = list.filter(it => contains(it.details?.name, f.q.trim()));
+  let list = [...this.items];
 
-    // type/attribute/race
-    if (f.cardType) list = list.filter(it => (it.details?.humanReadableCardType ?? it.details?.cardType) === f.cardType);
-    if (f.attribute) list = list.filter(it => it.details?.attribute === f.attribute);
-    if (f.race) list = list.filter(it => it.details?.race === f.race);
+  // Search
+  if (f.q.trim()) list = list.filter(it => contains(it.details?.name, f.q.trim()));
 
-    // numeric ranges
-    const lvlActive = f.levelMin != null || f.levelMax != null;
-    const atkActive = f.atkMin != null || f.atkMax != null;
-    const defActive = f.defMin != null || f.defMax != null;
+  // Frame Type (primary)
+  if (f.frameType) {
+    list = list.filter(it => eqi(it.details?.frameType, f.frameType));
+  }
+
+  // Attribute (monsters only)
+  if (f.attribute) {
+    list = list.filter(it =>
+      this.isMonsterFrame(it.details?.frameType) &&
+      eqi(it.details?.attribute, f.attribute)
+    );
+  }
+
+  // Race/Subtype (contextual: monster type OR spell type OR trap type)
+  if (f.race) {
+    list = list.filter(it => eqi(it.details?.race, f.race));
+  }
+
+  // Stats (only meaningful for monsters)
+  const lvlActive = f.levelMin != null || f.levelMax != null;
+  const atkActive = f.atkMin != null || f.atkMax != null;
+  const defActive = f.defMin != null || f.defMax != null;
+
+  const usingStats = lvlActive || atkActive || defActive;
+
+  if (usingStats) {
+    list = list.filter(it => this.isMonsterFrame(it.details?.frameType));
 
     if (lvlActive) list = list.filter(it => inRange((it.details as any)?.level, f.levelMin, f.levelMax));
     if (atkActive) list = list.filter(it => inRange((it.details as any)?.atk, f.atkMin, f.atkMax));
     if (defActive) list = list.filter(it => inRange((it.details as any)?.def, f.defMin, f.defMax));
-
-    // sort
-    const dir = f.sortDir === 'asc' ? 1 : -1;
-    list.sort((a: any, b: any) => {
-      const ad = a.details ?? {};
-      const bd = b.details ?? {};
-
-      const av = f.sortKey === 'name' ? (ad.name ?? '') : ad[f.sortKey];
-      const bv = f.sortKey === 'name' ? (bd.name ?? '') : bd[f.sortKey];
-
-      if (av == null && bv == null) return 0;
-      if (av == null) return 1;
-      if (bv == null) return -1;
-
-      if (typeof av === 'string') return av.localeCompare(String(bv)) * dir;
-      return (Number(av) - Number(bv)) * dir;
-    });
-
-    this.filteredItems = list;
   }
+
+  // Sort
+  const dir = f.sortDir === 'asc' ? 1 : -1;
+  list.sort((a: any, b: any) => {
+    const ad = a.details ?? {};
+    const bd = b.details ?? {};
+
+    const av = f.sortKey === 'name' ? (ad.name ?? '') : ad[f.sortKey];
+    const bv = f.sortKey === 'name' ? (bd.name ?? '') : bd[f.sortKey];
+
+    if (av == null && bv == null) return 0;
+    if (av == null) return 1;
+    if (bv == null) return -1;
+
+    if (typeof av === 'string') return av.localeCompare(String(bv)) * dir;
+    return (Number(av) - Number(bv)) * dir;
+  });
+
+  this.filteredItems = list;
+}
 
   resetFilters() {
     this.filters = { ...DEFAULT_FILTERS };
@@ -480,4 +539,76 @@ export class CubeCollectionComponent implements OnInit {
 
     return {};
   }
+
+  getSelectedDetailsCard(): CubeCardDetails | CardSearchResult | null {
+  if (!this.selected) return null;
+
+  if (this.selected.details) {
+    return this.selected.details;
+  }
+
+  // fallback minimal object if details missing
+  return {
+    id: this.selected.cardId,
+    name: `Card #${this.selected.cardId}`,
+    imageUrl: null,
+    cardType: null,
+    humanReadableCardType: null,
+    archetype: null,
+  };
+}
+
+// ===== card-browser glue =====
+selectedCardId: number | null = null;
+
+// browser selectors (CollectionItem -> display)
+colId = (it: CollectionItem) => it.cardId;
+
+colName = (it: CollectionItem) => it.details?.name ?? (`Card #${it.cardId}`);
+
+colImage = (it: CollectionItem) => it.details?.imageUrl ?? null;
+
+colSubtext = (it: CollectionItem) => `Qty: ${it.qty} · Updated: ${it.updatedAt ? new Date(it.updatedAt).toLocaleString() : ''}`;
+
+colBadgeText = (it: CollectionItem) => it.banned ? 'BANNED' : `x${it.qty}`;
+
+colBadgeClass = (it: CollectionItem) => it.banned ? 'text-bg-danger' : 'text-bg-secondary';
+
+colRowStyle = (it: CollectionItem) => this.getRowStyleForCard(it.details ?? {});
+
+colShowBannedIcon = (it: CollectionItem) => !!it.banned;
+
+// keep RIGHT panel in sync
+onCollectionSelectedIdChange(id: number | string | null) {
+  this.selectedCardId = (id == null ? null : Number(id));
+  this.selected = this.selectedCardId == null
+    ? null
+    : (this.items.find(x => x.cardId === this.selectedCardId) ?? null);
+
+  if (this.selected) {
+    this.qtyDraft = this.selected.qty;
+    this.selectedSearch = null;
+  }
+}
+
+private norm(x: any): string {
+  return String(x ?? '').trim().toLowerCase();
+}
+
+private isSpellFrame(frameType: string | null | undefined): boolean {
+  const ft = this.norm(frameType);
+  return ft === 'spell' || ft.includes('spell');
+}
+
+private isTrapFrame(frameType: string | null | undefined): boolean {
+  const ft = this.norm(frameType);
+  return ft === 'trap' || ft.includes('trap');
+}
+
+private isMonsterFrame(frameType: string | null | undefined): boolean {
+  const ft = this.norm(frameType);
+  if (!ft) return true;
+  return !this.isSpellFrame(ft) && !this.isTrapFrame(ft);
+}
+
 }

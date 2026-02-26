@@ -6,11 +6,12 @@ import { FormsModule } from '@angular/forms';
 import { CubeService } from '../../../services/cube.service';
 import { CubeMember } from '../../../models/cube-member';
 import { CubeContextService } from '../../../services/cube-context.service';
+import { CardDetailsPanelComponent } from '../../../components/card-details-panel/card-details-panel.component';
 
 @Component({
   selector: 'app-cube-members',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CardDetailsPanelComponent],
   templateUrl: './cube-members.component.html',
     styleUrls: ['./cube-members.component.css'],
 })
@@ -64,6 +65,18 @@ export class CubeMembersComponent implements OnInit {
   applyingReward = false;
 
   rewardMode: 'WINNER_PICK2' | 'LOSER_BAN' = 'WINNER_PICK2';
+
+  // ===== Wheel overlay =====
+wheelOpen = false;
+wheelMode: 'WINNER' | 'LOSER' = 'WINNER';
+wheelSpinning = false;
+wheelResultText: string | null = null;
+
+private wheelSegments = 10;                 // number of slices
+private wheelDurationMs = 2600;             // spin time
+private wheelRotation = 0;                  // accumulated degrees
+wheelTransform = 'rotate(0deg)';
+private wheelProceedTimer: any = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -301,42 +314,45 @@ export class CubeMembersComponent implements OnInit {
     });
   }
 
-  openWinnerSpin(): void {
-    this.spinResultText = null;
-    this.rewardMode = 'WINNER_PICK2';
-    this.error = null;
-    this.startingWinnerSpin = true;
+openWinnerSpin(): void {
+  this.spinResultText = null;
+  this.error = null;
+  this.openWheel('WINNER');
+}
 
-    this.cubes.startWinnerSpin(this.cubeId).subscribe({
-      next: (resp) => {
-        this.startingWinnerSpin = false;
+// was openWinnerSpin() before:
+private startWinnerRewardFlow(): void {
+  this.spinResultText = null;
+  this.rewardMode = 'WINNER_PICK2';
+  this.error = null;
+  this.startingWinnerSpin = true;
 
-        const ids = resp?.offeredCardIds ?? [];
+  this.cubes.startWinnerSpin(this.cubeId).subscribe({
+    next: (resp) => {
+      this.startingWinnerSpin = false;
 
-        // configure reward UI (winner pick-2)
-        this.rewardTitle = 'Winner Reward — Pick 2';
-        this.rewardPickLimit = 2;
+      const ids = resp?.offeredCardIds ?? [];
 
-        // reset + open
-        this.rewardOfferIds = ids;
-        this.rewardOfferCards = [];
-        this.rewardPickedIds.clear();
-        this.rewardSelectedDetail = null;
+      this.rewardTitle = 'Winner Reward — Pick 2';
+      this.rewardPickLimit = 2;
 
-        this.showingRewardOffer = true;
+      this.rewardOfferIds = ids;
+      this.rewardOfferCards = [];
+      this.rewardPickedIds.clear();
+      this.rewardSelectedDetail = null;
 
-        // load details to show images + details panel
-        this.loadRewardOfferDetails();
-      },
-      error: (err) => {
-        this.startingWinnerSpin = false;
-        this.error =
-          typeof err?.error === 'string'
-            ? err.error
-            : 'Failed to start winner spin.';
-      },
-    });
-  }
+      this.showingRewardOffer = true;
+      this.loadRewardOfferDetails();
+    },
+    error: (err) => {
+      this.startingWinnerSpin = false;
+      this.error =
+        typeof err?.error === 'string'
+          ? err.error
+          : 'Failed to start winner spin.';
+    },
+  });
+}
 
   private loadRewardOfferDetails(): void {
     this.loadingRewardOffer = true;
@@ -453,40 +469,45 @@ confirmReward(): void {
     this.rewardSelectedDetail = null;
   }
 
-  openLoserSpin(): void {
-    this.spinResultText = null;
-    this.rewardMode = 'LOSER_BAN';
-    this.error = null;
-    this.loadingRewardOffer = true;
+openLoserSpin(): void {
+  this.spinResultText = null;
+  this.error = null;
+  this.openWheel('LOSER');
+}
 
-    this.cubes.startLoserSpin(this.cubeId).subscribe({
-      next: (resp) => {
-        const ids = resp?.offeredCardIds ?? [];
+// was openLoserSpin() before:
+private startLoserRewardFlow(): void {
+  this.spinResultText = null;
+  this.rewardMode = 'LOSER_BAN';
+  this.error = null;
+  this.loadingRewardOffer = true;
 
-        this.rewardTitle = 'Loser Wheel — Pick up to 8 from opponent’s collection (1 will be banned at random)';
-        this.rewardPickLimit = ids.length >= 8 ? 8 : ids.length;
+  this.cubes.startLoserSpin(this.cubeId).subscribe({
+    next: (resp) => {
+      const ids = resp?.offeredCardIds ?? [];
 
-        this.rewardOfferIds = ids;
-        this.rewardOfferCards = [];
-        this.rewardPickedIds.clear();
-        this.rewardSelectedDetail = null;
+      this.rewardTitle = 'Loser Wheel — Pick up to 8 from opponent’s collection (1 will be banned at random)';
+      this.rewardPickLimit = ids.length >= 8 ? 8 : ids.length;
 
-        this.showingRewardOffer = true;
+      this.rewardOfferIds = ids;
+      this.rewardOfferCards = [];
+      this.rewardPickedIds.clear();
+      this.rewardSelectedDetail = null;
 
-        // load card details for images + right panel (same as winner)
-        this.loadRewardOfferDetails();
+      this.showingRewardOffer = true;
+      this.loadRewardOfferDetails();
 
-        this.loadingRewardOffer = false;
-      },
-      error: (err) => {
-        this.loadingRewardOffer = false;
-        this.error =
-          typeof err?.error === 'string'
-            ? err.error
-            : 'Failed to start loser spin.';
-      },
-    });
-  }
+      this.loadingRewardOffer = false;
+    },
+    error: (err) => {
+      this.loadingRewardOffer = false;
+      this.error =
+        typeof err?.error === 'string'
+          ? err.error
+          : 'Failed to start loser spin.';
+    },
+  });
+}
 
   private minPicks(): number {
   return this.rewardMode === 'LOSER_BAN' ? 1 : this.rewardPickLimit;
@@ -517,5 +538,97 @@ private setSpinResult(text: string): void {
 private cardLabel(cardId: number): string {
   const found = (this.rewardOfferCards ?? []).find((c: any) => c?.cardId === cardId);
   return found?.name ? `${found.name} (#${cardId})` : `Card #${cardId}`;
+}
+
+private openWheel(mode: 'WINNER' | 'LOSER'): void {
+  this.wheelMode = mode;
+  this.wheelOpen = true;
+  this.wheelResultText = null;
+
+  // reset-ish (optional)
+  // keep wheelRotation to feel continuous between spins
+}
+
+closeWheel(): void {
+  if (this.wheelSpinning) return;
+  this.wheelOpen = false;
+  this.wheelResultText = null;
+}
+
+onWheelBackdrop(evt: MouseEvent): void {
+  // close only when clicking backdrop, not modal content
+  if (this.wheelSpinning) return;
+  const target = evt.target as HTMLElement;
+  if (target?.classList?.contains('wheel-overlay')) this.closeWheel();
+}
+
+spinWheel(): void {
+  if (this.wheelSpinning) return;
+
+  this.wheelSpinning = true;
+  this.wheelResultText = 'Spinning…';
+
+  // pick a random segment index (0..segments-1)
+  const segmentIndex = Math.floor(Math.random() * this.wheelSegments);
+
+  // each segment is this many degrees
+  const segDeg = 360 / this.wheelSegments;
+
+  // We want the selected segment to end at the pointer (top).
+  // Pointer is at 0deg visually; wheel rotation moves slices under it.
+  // Aim near the center of the segment for nicer landing.
+  const segmentCenterOffset = segmentIndex * segDeg + segDeg / 2;
+
+  // Add multiple full turns + land on target
+  const extraTurns = 5 + Math.floor(Math.random() * 3); // 5-7 turns
+  const target = (extraTurns * 360) + (360 - segmentCenterOffset);
+
+  // accumulate so it continues from current rotation
+  this.wheelRotation = this.wheelRotation + target;
+
+  // apply transform (CSS transition handles animation)
+  this.wheelTransform = `rotate(${this.wheelRotation}deg)`;
+
+  // set text (your slices are identical on purpose)
+  this.wheelResultText =
+    this.wheelMode === 'WINNER'
+      ? 'Result: Take 2 cards from a random pack.'
+      : 'Result: Ban 1 card (random).';
+
+  // after animation ends, proceed into your existing flow
+  clearTimeout(this.wheelProceedTimer);
+  this.wheelProceedTimer = setTimeout(() => {
+    this.wheelSpinning = false;
+    this.wheelOpen = false;
+
+    if (this.wheelMode === 'WINNER') {
+      this.startWinnerRewardFlow();
+    } else {
+      this.startLoserRewardFlow();
+    }
+  }, this.wheelDurationMs);
+}
+
+forceProceedAfterSpin(): void {
+  if (this.wheelSpinning) return;
+  this.wheelOpen = false;
+
+  if (this.wheelMode === 'WINNER') {
+    this.startWinnerRewardFlow();
+  } else {
+    this.startLoserRewardFlow();
+  }
+}
+
+inWinnerFlow(): boolean {
+  return this.wheelOpen || this.showingRewardOffer && this.rewardMode === 'WINNER_PICK2';
+}
+
+inLoserFlow(): boolean {
+  return this.wheelOpen || this.showingRewardOffer && this.rewardMode === 'LOSER_BAN';
+}
+
+inAnySpinFlow(): boolean {
+  return this.inWinnerFlow() || this.inLoserFlow();
 }
 }

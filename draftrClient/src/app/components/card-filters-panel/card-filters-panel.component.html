@@ -1,0 +1,115 @@
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+
+    <!-- Header -->
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <div class="fw-semibold">Filters</div>
+
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-muted small">
+          Showing {{ showing }} of {{ total }}
+          <span *ngIf="getActiveFilterCount() > 0" class="ms-1">
+            • <span class="badge text-bg-light border">{{ getActiveFilterCount() }} active</span>
+          </span>
+        </span>
+
+        <button class="btn btn-sm btn-outline-secondary" (click)="reset()">
+          Reset
+        </button>
+
+        <button *ngIf="showToggle"
+                class="btn btn-sm btn-outline-secondary"
+                (click)="toggle()">
+          {{ filtersOpen ? 'Minimize' : 'Expand' }}
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="!showToggle || filtersOpen">
+
+      <!-- ================= SEARCH ================= -->
+      <div class="mb-3">
+        <div class="fw-semibold small text-muted mb-2">Search</div>
+
+        <div class="row g-2">
+          <div class="col-12 col-md-6">
+            <label class="form-label mb-1">Name</label>
+            <input class="form-control"
+                  [(ngModel)]="model.q"
+                  (ngModelChange)="onAnyChange()"
+                  placeholder="e.g. blue, dark magician..." />
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= CARD KIND ================= -->
+      <div class="mb-3">
+        <div class="fw-semibold small text-muted mb-2">Card Kind</div>
+
+        <div class="row g-2 align-items-end">
+
+          <div class="col-12 col-md-4">
+            <label class="form-label mb-1">Frame Type</label>
+            <select class="form-select"
+                    [(ngModel)]="model.frameType"
+                    (change)="onFrameTypeChange()">
+              <option value="">Any</option>
+              <option *ngFor="let ft of frameTypeOptions" [value]="ft">{{ ft }}</option>
+            </select>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label class="form-label mb-1">{{ getRaceLabel() }}</label>
+            <select class="form-select"
+                    [(ngModel)]="model.race"
+                    (change)="onAnyChange()">
+              <option value="">Any</option>
+              <option *ngFor="let r of getRaceOptions()" [value]="r">{{ r }}</option>
+            </select>
+          </div>
+
+          <div class="col-12 col-md-4" *ngIf="showMonsterOnly()">
+            <label class="form-label mb-1">Attribute</label>
+            <select class="form-select"
+                    [(ngModel)]="model.attribute"
+                    (change)="onAnyChange()">
+              <option value="">Any</option>
+              <option *ngFor="let a of attributeOptions" [value]="a">{{ a }}</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= SORT ================= -->
+      <div>
+        <div class="fw-semibold small text-muted mb-2">Sort</div>
+
+        <div class="row g-2">
+          <div class="col-6 col-md-3">
+            <label class="form-label mb-1">Sort</label>
+            <select class="form-select"
+                    [(ngModel)]="model.sortKey"
+                    (change)="onAnyChange()">
+              <option value="name">Name</option>
+              <option *ngIf="showMonsterOnly()" value="atk">ATK</option>
+              <option *ngIf="showMonsterOnly()" value="def">DEF</option>
+              <option *ngIf="showMonsterOnly()" value="level">Level</option>
+            </select>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <label class="form-label mb-1">Direction</label>
+            <select class="form-select"
+                    [(ngModel)]="model.sortDir"
+                    (change)="onAnyChange()">
+              <option value="asc">Asc</option>
+              <option value="desc">Desc</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

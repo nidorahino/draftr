@@ -148,8 +148,18 @@ public class RoundClaimService {
         List<Long> offer = generateWinnerOffer(cubeId, 12);
 
         // persist offer in cube_event so refresh doesn't change it
-        writeEvent(cubeId, "WINNER_SPIN_OFFER_CREATED", actorUserId,
-                Map.of("roundClaimId", rc.getRoundClaimId(), "offeredCardIds", offer));
+        writeEvent(
+                cubeId,
+                "WINNER_SPIN_OFFER_CREATED",
+                actorUserId,
+                "Winner User #" + actorUserId + " offer created (" + offer.size() + " cards, roundClaimId=" + rc.getRoundClaimId() + ")",
+                offer.isEmpty() ? null : offer.get(0), // optional “first card” reference
+                null, // no specific target
+                Map.of(
+                        "roundClaimId", rc.getRoundClaimId(),
+                        "offeredCardIds", offer
+                )
+        );
 
         return new WinnerOfferResponse(rc.getRoundClaimId(), offer);
     }
@@ -197,10 +207,18 @@ public class RoundClaimService {
         rc.setWinnerSpinClaimed(true);
         roundClaimRepo.save(rc);
 
+        String summary =
+                "Winner User #" + actorUserId + " picked cards " + picks + " (roundClaimId=" + rc.getRoundClaimId() + ")";
+
         writeEvent(
                 cubeId,
                 "WINNER_SPIN_APPLIED",
                 actorUserId,
+                summary,
+                // cardId: optional, store first picked just for quick filtering
+                picks.get(0),
+                // targetUserId: optional, could store the loser (who lost the round) or null
+                rc.getLoserUserId(),
                 Map.of(
                         "roundClaimId", rc.getRoundClaimId(),
                         "offeredCardIds", offer,
@@ -241,13 +259,26 @@ public class RoundClaimService {
         collectionRepo.save(row);
     }
 
-    private void writeEvent(Long cubeId, String type, Long actorUserId, Object payloadObj) {
+    private void writeEvent(Long cubeId,
+                            String type,
+                            Long actorUserId,
+                            String summary,
+                            Long cardId,
+                            Long targetUserId,
+                            Object payloadObj) {
         try {
             CubeEvent e = new CubeEvent();
             e.setCubeId(cubeId);
             e.setEventType(type);
             e.setActorUserId(actorUserId);
-            e.setSummary(type);
+
+            // ✅ what the audit list will show
+            e.setSummary(summary);
+
+            // ✅ optional reference columns (nice for filtering later)
+            e.setCardId(cardId);
+            e.setTargetUserId(targetUserId);
+
             e.setPayload(objectMapper.writeValueAsString(payloadObj));
             eventRepo.save(e);
         } catch (Exception ex) {
@@ -332,26 +363,38 @@ public class RoundClaimService {
         List<CubeCollectionCard> oppRows =
                 collectionRepo.findByCubeIdAndUserId(cubeId, rc.getWinnerUserId());
 
-        List<Long> uniqueCardIds = oppRows.stream()
+        List<Long> oppCardIds = oppRows.stream()
                 .map(CubeCollectionCard::getCardId)
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
 
-        if (uniqueCardIds.isEmpty()) {
+        if (oppCardIds.isEmpty()) {
             throw new IllegalArgumentException("Opponent has no cards in their collection to offer.");
         }
 
-        List<Long> offer = new ArrayList<>(uniqueCardIds);
+        // ✅ only allow cards that exist in cube pool AND are not banned
+        Set<Long> allowed = new HashSet<>();
+        for (CubeCard cc : cubeCardRepo.findByCubeIdAndCardIdIn(cubeId, oppCardIds)) {
+            if (!cc.isBanned()) allowed.add(cc.getCardId());
+        }
 
-        // optional: shuffle display order, but DO NOT truncate
+        if (allowed.isEmpty()) {
+            throw new IllegalArgumentException("Opponent has no non-banned cards available to offer.");
+        }
+
+        List<Long> offer = new ArrayList<>(allowed);
         Collections.shuffle(offer);
 
         writeEvent(
                 cubeId,
                 "LOSER_SPIN_OFFER_CREATED",
                 actorUserId,
-                java.util.Map.of(
+                "Loser User #" + actorUserId + " offer created from User #" + rc.getWinnerUserId()
+                        + " (" + offer.size() + " cards, roundClaimId=" + rc.getRoundClaimId() + ")",
+                offer.isEmpty() ? null : offer.get(0),     // optional
+                rc.getWinnerUserId(),                      // target = opponent whose collection was sampled
+                Map.of(
                         "roundClaimId", rc.getRoundClaimId(),
                         "opponentUserId", rc.getWinnerUserId(),
                         "offeredCardIds", offer
@@ -434,6 +477,9 @@ public class RoundClaimService {
                 cubeId,
                 "LOSER_SPIN_BAN_APPLIED",
                 actorUserId,
+                "User #" + actorUserId + " banned card #" + bannedCardId + " (target User #" + rc.getWinnerUserId() + ")",
+                bannedCardId,
+                rc.getWinnerUserId(),
                 Map.of(
                         "roundClaimId", rc.getRoundClaimId(),
                         "opponentUserId", rc.getWinnerUserId(),

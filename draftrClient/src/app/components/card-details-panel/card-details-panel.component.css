@@ -1,0 +1,188 @@
+/* =========================
+   Card Details Panel styles
+   ========================= */
+
+/* -------------------------
+   Card image + banned overlay
+   ------------------------- */
+.card-image-wrap{
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.banned-overlay{
+  position: absolute;
+  top: 8px;
+  right: 8px;
+
+  width: 64px;
+  height: 64px;
+
+  pointer-events: none;
+
+  transform: rotate(-8deg);
+
+  filter:
+    brightness(0)
+    saturate(100%)
+    invert(18%)
+    sepia(96%)
+    saturate(7482%)
+    hue-rotate(356deg)
+    brightness(95%)
+    contrast(110%)
+
+    drop-shadow(0 0 12px rgba(0,0,0,1))
+    drop-shadow(0 16px 36px rgba(0,0,0,1))
+    drop-shadow(0 8px 18px rgba(0,0,0,1))
+    drop-shadow(0 0 8px rgba(255,0,0,0.5));
+}
+
+/* -------------------------
+   Icon rail (attribute + level/rank)
+   Now used as a ROW under name
+   ------------------------- */
+.icon-col{
+  display: flex;
+  flex-direction: column; /* default (kept for safety) */
+  gap: 6px;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.icon-row{
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* when placed in the new row layout */
+.icon-col-row{
+  flex-direction: row;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.icon-badge{
+  position: relative;
+  width: 72px;
+  height: 72px;
+}
+
+.icon-img{
+  width: 72px;
+  height: 72px;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.45));
+}
+
+.icon-text{
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 900;
+  font-size: 34px;
+  line-height: 1;
+  text-shadow:
+    0 2px 4px rgba(0,0,0,0.9),
+    0 0 6px rgba(0,0,0,0.6);
+}
+
+/* -------------------------
+   Name + archetype row
+   ------------------------- */
+.name-row{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-name{
+  font-weight: 800;
+  font-size: 1.35rem;   /* main size increase */
+  line-height: 1.15;    /* keeps it compact */
+  letter-spacing: 0.02em;
+}
+
+.card-archetype{
+  margin-left: auto;
+  font-size: 13px;
+  opacity: 0.75;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+/* -------------------------
+   Description box (typeline + meta + text + stats)
+   ------------------------- */
+.details-desc{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+/* top line inside description: typeline left, meta right */
+.details-desc .desc-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+/* typeline header */
+.details-desc .desc-typeline{
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  opacity: 0.95;
+  min-width: 0;
+}
+
+/* right side meta */
+.details-desc .desc-meta{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  margin-left: auto;
+  opacity: 0.9;
+}
+
+.details-desc .meta-item{
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.details-desc .meta-badge{
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+/* stats pinned to bottom of desc box */
+.details-desc .desc-stats{
+  margin-top: auto;
+  pointer-events: none;
+}
+
+.details-desc .desc-sep{
+  height: 1px;
+  width: 100%;
+  background: rgba(232, 238, 252, 0.18);
+  margin-bottom: 6px;
+}
+
+.details-desc .stats-line{
+  text-align: right;
+  font-size: 14px;
+  color: inherit;
+  opacity: 0.85;
+  letter-spacing: 0.04em;
+  font-weight: 800;
+}

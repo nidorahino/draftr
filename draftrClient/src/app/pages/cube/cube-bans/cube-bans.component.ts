@@ -4,11 +4,13 @@ import { ActivatedRoute } from '@angular/router';
 
 import { CubeService } from '../../../services/cube.service';
 import { CubeCardDetails } from '../../../models/cube-card-details';
+import { CardDetailsPanelComponent } from '../../../components/card-details-panel/card-details-panel.component';
+import { CardBrowserComponent } from '../../../components/card-browser/card-browser.component';
 
 @Component({
   selector: 'app-cube-bans',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CardDetailsPanelComponent, CardBrowserComponent],
   templateUrl: './cube-bans.component.html',
     styleUrls: ['./cube-bans.component.css'],
 })
@@ -23,6 +25,23 @@ export class CubeBansComponent implements OnInit {
   loading = true;
   error: string | null = null;
 
+  // browser glue
+selectedCardId: number | null = null;
+
+// selectors for app-card-browser
+banId = (c: any) => c.cardId;
+banName = (c: any) => c.name ?? '';
+banImage = (c: any) => c.imageUrl ?? null;
+
+banSubtext = (c: any) =>
+  `#${c.cardId} · ${(c.humanReadableCardType ?? c.cardType ?? '')}`;
+
+banBadgeText = (_: any) => 'BANNED';
+banBadgeClass = (_: any) => 'text-bg-danger';
+
+banRowStyle = (c: any) => this.getRowStyleForCard(c);
+banShowBannedIcon = (_: any) => true;
+
   constructor(
     private route: ActivatedRoute,
     private cubes: CubeService
@@ -35,31 +54,45 @@ export class CubeBansComponent implements OnInit {
     });
   }
 
-  load() {
-    this.loading = true;
-    this.error = null;
+load() {
+  this.loading = true;
+  this.error = null;
 
-    this.cubes.listCardsDetails(this.cubeId, true).subscribe({
-      next: (rows) => {
-        this.bannedCards = rows.filter((c) => c.banned);
+  this.cubes.listCardsDetails(this.cubeId, true).subscribe({
+    next: (rows) => {
 
-        // keep selection if still present, otherwise select first
-        if (this.selected) {
-          const stillThere = this.bannedCards.find(x => x.cardId === this.selected!.cardId);
-          this.selected = stillThere ?? null;
-        }
-        if (!this.selected && this.bannedCards.length > 0) {
-          this.selected = this.bannedCards[0];
-        }
+      // filter banned only
+      this.bannedCards = rows.filter(c => c.banned);
 
-        this.loading = false;
-      },
-      error: () => {
-        this.error = 'Failed to load ban list.';
-        this.loading = false;
-      },
-    });
-  }
+      // --------------------------------------------------
+      // PRIMARY: restore selection from selectedCardId
+      // --------------------------------------------------
+      if (this.selectedCardId != null) {
+        this.selected =
+          this.bannedCards.find(c => c.cardId === this.selectedCardId) ?? null;
+      }
+
+      // --------------------------------------------------
+      // SECONDARY: if nothing selected yet, select first
+      // --------------------------------------------------
+      if (!this.selected && this.bannedCards.length > 0) {
+        this.selected = this.bannedCards[0];
+      }
+
+      // --------------------------------------------------
+      // ALWAYS keep ID and object in sync
+      // --------------------------------------------------
+      this.selectedCardId = this.selected?.cardId ?? null;
+
+      this.loading = false;
+    },
+
+    error: () => {
+      this.error = 'Failed to load ban list.';
+      this.loading = false;
+    },
+  });
+}
 
   select(card: CubeCardDetails) {
     this.selected = card;
@@ -96,4 +129,12 @@ export class CubeBansComponent implements OnInit {
 
     return {};
   }
+
+  // keep RIGHT panel in sync
+onBanSelectedIdChange(id: number | string | null) {
+  this.selectedCardId = (id == null ? null : Number(id));
+  this.selected = this.selectedCardId == null
+    ? null
+    : (this.bannedCards.find(c => c.cardId === this.selectedCardId) ?? null);
+}
 }

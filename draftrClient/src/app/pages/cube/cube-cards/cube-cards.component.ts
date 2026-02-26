@@ -10,11 +10,14 @@ import { CubeContextService } from '../../../services/cube-context.service';
 import { Page } from '../../../models/page';
 import { CardSearchResult } from '../../../models/card-search-result';
 import { CardFilters, DEFAULT_FILTERS } from '../../../models/card-filters';
+import { CardDetailsPanelComponent } from '../../../components/card-details-panel/card-details-panel.component';
+import { CardBrowserComponent } from '../../../components/card-browser/card-browser.component';
+import { CardFiltersPanelComponent } from '../../../components/card-filters-panel/card-filters-panel.component';
 
 @Component({
   selector: 'app-cube-cards',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CardDetailsPanelComponent, CardBrowserComponent, CardFiltersPanelComponent],
   templateUrl: './cube-cards.component.html',
     styleUrls: ['./cube-cards.component.css'],
 })
@@ -53,6 +56,30 @@ export class CubeCardsComponent implements OnInit {
   searchResults: CardSearchResult[] = [];
   searchTotalPages = 0;
   private selectAfterLoadCardId: number | null = null;
+
+  frameTypeOptions: string[] = [];
+monsterTypeOptions: string[] = [];
+spellTypeOptions: string[] = [];
+trapTypeOptions: string[] = [];
+
+  // card-browser glue
+selectedCardId: number | null = null;
+
+poolId = (c: CubeCardDetails) => c.cardId;
+
+poolName = (c: CubeCardDetails) => c.name ?? '';
+
+poolImage = (c: CubeCardDetails) => c.imageUrl ?? null;
+
+poolSubtext = (c: CubeCardDetails) => `Max: ${c.maxQty}`;
+
+poolBadgeText = (c: CubeCardDetails) => (c.banned ? 'BANNED' : 'OK');
+
+poolBadgeClass = (c: CubeCardDetails) => (c.banned ? 'text-bg-danger' : 'text-bg-secondary');
+
+poolRowStyle = (c: CubeCardDetails) => this.getRowStyleForCard(c);
+
+poolShowBannedIcon = (c: CubeCardDetails) => !!c.banned;
 
   // per-result max qty input
   searchMaxQty: Record<number, number> = {};
@@ -96,6 +123,8 @@ export class CubeCardsComponent implements OnInit {
   attributeOptions: string[] = [];
   raceOptions: string[] = [];
 
+  
+
   constructor(
     private route: ActivatedRoute,
     private cubes: CubeService,
@@ -126,6 +155,20 @@ export class CubeCardsComponent implements OnInit {
     return this.myRole === 'OWNER' || this.myRole === 'ADMIN';
   }
 
+  onPoolSelectedIdChange(id: number | string | null) {
+  this.selectedCardId = (id == null ? null : Number(id));
+  this.selected = this.selectedCardId == null
+    ? null
+    : (this.cards.find(c => c.cardId === this.selectedCardId) ?? null);
+
+  if (this.selected) this.selectedSearch = null;
+}
+
+onFiltersChange(f: CardFilters) {
+  this.filters = { ...f };
+  this.applyFilters();
+}
+
   load() {
     this.loading = true;
     this.error = null;
@@ -134,20 +177,33 @@ export class CubeCardsComponent implements OnInit {
       next: (rows) => {
         this.cards = rows;
 
-        this.cardTypeOptions = this.uniq(
-          rows.map(x => x.humanReadableCardType ?? x.cardType)
-              .filter(Boolean) as string[]
-        );
+this.frameTypeOptions = this.uniq(
+  rows.map(x => x.frameType).filter(Boolean) as string[]
+);
 
-        this.attributeOptions = this.uniq(
-          rows.map(x => x.attribute)
-              .filter(Boolean) as string[]
-        );
+this.attributeOptions = this.uniq(
+  rows.filter(x => this.isMonsterFrame(x.frameType))
+      .map(x => x.attribute)
+      .filter(Boolean) as string[]
+);
 
-        this.raceOptions = this.uniq(
-          rows.map(x => x.race)
-              .filter(Boolean) as string[]
-        );
+this.monsterTypeOptions = this.uniq(
+  rows.filter(x => this.isMonsterFrame(x.frameType))
+      .map(x => x.race)
+      .filter(Boolean) as string[]
+);
+
+this.spellTypeOptions = this.uniq(
+  rows.filter(x => this.isSpellFrame(x.frameType))
+      .map(x => x.race)
+      .filter(Boolean) as string[]
+);
+
+this.trapTypeOptions = this.uniq(
+  rows.filter(x => this.isTrapFrame(x.frameType))
+      .map(x => x.race)
+      .filter(Boolean) as string[]
+);
 
         this.applyFilters();
 
@@ -171,7 +227,7 @@ export class CubeCardsComponent implements OnInit {
         if (!this.selected && rows.length > 0) {
           this.selected = rows[0];
         }
-
+this.selectedCardId = this.selected?.cardId ?? null;
         this.loading = false;
       },
       error: () => {
@@ -181,10 +237,11 @@ export class CubeCardsComponent implements OnInit {
     });
   }
 
-  select(card: CubeCardDetails) {
-    this.selected = card;
-    this.selectedSearch = null;
-  }
+select(card: CubeCardDetails) {
+  this.selected = card;
+  this.selectedCardId = card.cardId;
+  this.selectedSearch = null;
+}
 
   isSelected(cardId: number) {
     return this.selected?.cardId === cardId;
@@ -585,55 +642,76 @@ export class CubeCardsComponent implements OnInit {
     this.applyFilters();
   }
 
-  applyFilters() {
-    const f = this.filters;
+applyFilters() {
+  const f = this.filters;
 
-    const contains = (v: string | null | undefined, q: string) =>
-      (v ?? '').toLowerCase().includes(q.toLowerCase());
+  const contains = (v: string | null | undefined, q: string) =>
+    (v ?? '').toLowerCase().includes(q.toLowerCase());
 
-    const inRange = (n: number | null | undefined, min: number | null, max: number | null) => {
-      if (n == null) return false; // if the stat doesn't exist, exclude when range is used
-      if (min != null && n < min) return false;
-      if (max != null && n > max) return false;
-      return true;
-    };
+  const eqi = (a: any, b: any) =>
+    String(a ?? '').trim().toLowerCase() === String(b ?? '').trim().toLowerCase();
 
-    let list = [...this.cards];
+  const inRange = (n: number | null | undefined, min: number | null, max: number | null) => {
+    if (n == null) return false;
+    if (min != null && n < min) return false;
+    if (max != null && n > max) return false;
+    return true;
+  };
 
-    // text
-    if (f.q.trim()) list = list.filter(c => contains(c.name, f.q.trim()));
+  let list = [...this.cards];
 
-    // type / attribute / race
-    if (f.cardType) list = list.filter(c => (c.humanReadableCardType ?? c.cardType) === f.cardType);
-    if (f.attribute) list = list.filter(c => c.attribute === f.attribute);
-    if (f.race) list = list.filter(c => c.race === f.race);
+  // Name search
+  if (f.q.trim()) list = list.filter(c => contains(c.name, f.q.trim()));
 
-    // numeric ranges (only apply if at least one bound is provided)
-    const lvlActive = f.levelMin != null || f.levelMax != null;
-    const atkActive = f.atkMin != null || f.atkMax != null;
-    const defActive = f.defMin != null || f.defMax != null;
+  // Frame Type
+  if (f.frameType) {
+    list = list.filter(c => eqi(c.frameType, f.frameType));
+  }
+
+  // Attribute (monsters only)
+  if (f.attribute) {
+    list = list.filter(c =>
+      this.isMonsterFrame(c.frameType) &&
+      eqi(c.attribute, f.attribute)
+    );
+  }
+
+  // Race/Subtype (contextual)
+  if (f.race) {
+    list = list.filter(c => eqi(c.race, f.race));
+  }
+
+  // Stats only for monsters
+  const lvlActive = f.levelMin != null || f.levelMax != null;
+  const atkActive = f.atkMin != null || f.atkMax != null;
+  const defActive = f.defMin != null || f.defMax != null;
+
+  const usingStats = lvlActive || atkActive || defActive;
+
+  if (usingStats) {
+    list = list.filter(c => this.isMonsterFrame(c.frameType));
 
     if (lvlActive) list = list.filter(c => inRange((c as any).level, f.levelMin, f.levelMax));
     if (atkActive) list = list.filter(c => inRange((c as any).atk, f.atkMin, f.atkMax));
     if (defActive) list = list.filter(c => inRange((c as any).def, f.defMin, f.defMax));
-
-    // sort
-    const dir = f.sortDir === 'asc' ? 1 : -1;
-    list.sort((a: any, b: any) => {
-      const av = (a?.[f.sortKey] ?? (f.sortKey === 'name' ? a?.name : null));
-      const bv = (b?.[f.sortKey] ?? (f.sortKey === 'name' ? b?.name : null));
-
-      // nulls last
-      if (av == null && bv == null) return 0;
-      if (av == null) return 1;
-      if (bv == null) return -1;
-
-      if (typeof av === 'string') return av.localeCompare(String(bv)) * dir;
-      return (Number(av) - Number(bv)) * dir;
-    });
-
-    this.filteredCards = list;
   }
+
+  // Sort
+  const dir = f.sortDir === 'asc' ? 1 : -1;
+  list.sort((a: any, b: any) => {
+    const av = f.sortKey === 'name' ? (a.name ?? '') : (a as any)[f.sortKey];
+    const bv = f.sortKey === 'name' ? (b.name ?? '') : (b as any)[f.sortKey];
+
+    if (av == null && bv == null) return 0;
+    if (av == null) return 1;
+    if (bv == null) return -1;
+
+    if (typeof av === 'string') return av.localeCompare(String(bv)) * dir;
+    return (Number(av) - Number(bv)) * dir;
+  });
+
+  this.filteredCards = list;
+}
 
   getRowStyleForCard(c: { frameType?: string | null; cardType?: string | null; humanReadableCardType?: string | null }) {
     const ft = (c.frameType ?? '').toLowerCase();
@@ -674,12 +752,32 @@ getActiveFilterCount(): number {
     f.levelMin, f.levelMax, f.atkMin, f.atkMax, f.defMin, f.defMax
   ].filter(v => v !== null && v !== undefined).length;
 
-  const text = [
-    f.q, f.cardType, f.attribute, f.race
-  ].filter(v => (v ?? '').toString().trim().length > 0).length;
+const text = [
+  f.q, f.frameType, f.attribute, f.race
+].filter(v => (v ?? '').toString().trim().length > 0).length;
 
   const sort = (f.sortKey && f.sortKey !== 'name' ? 1 : 0) + (f.sortDir && f.sortDir !== 'asc' ? 1 : 0);
 
   return nums + text + sort;
+}
+
+private norm(x: any): string {
+  return String(x ?? '').trim().toLowerCase();
+}
+
+private isSpellFrame(frameType: string | null | undefined): boolean {
+  const ft = this.norm(frameType);
+  return ft === 'spell' || ft.includes('spell');
+}
+
+private isTrapFrame(frameType: string | null | undefined): boolean {
+  const ft = this.norm(frameType);
+  return ft === 'trap' || ft.includes('trap');
+}
+
+private isMonsterFrame(frameType: string | null | undefined): boolean {
+  const ft = this.norm(frameType);
+  if (!ft) return true;
+  return !this.isSpellFrame(ft) && !this.isTrapFrame(ft);
 }
 }

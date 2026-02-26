@@ -23,8 +23,6 @@ public interface CubeCardRepository extends JpaRepository<CubeCard, Long> {
 
     void deleteByCubeIdAndCardId(Long cubeId, Long cardId);
 
-    List<DraftService.CubeCardQty> findCardQtyByCubeId(Long cubeId);
-
     @Query("select coalesce(sum(cc.maxQty), 0) from CubeCard cc where cc.cubeId = :cubeId")
     int sumMaxQtyByCubeId(@Param("cubeId") Long cubeId);
 

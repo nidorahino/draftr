@@ -1,43 +1,5 @@
-<div class="d-flex align-items-center justify-content-between mb-3">
-  <h2 class="h5 mb-0">Card Pool</h2>
-
-  <div class="d-flex align-items-center gap-3">
-    <div class="form-check">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        id="incBanned"
-        [(ngModel)]="includeBanned"
-        (change)="load()"
-      />
-      <label class="form-check-label" for="incBanned">Include banned</label>
-    </div>
-
-    <div class="btn-group btn-group-sm">
-      <button class="btn btn-outline-secondary"
-              [class.active]="viewMode === 'list'"
-              (click)="viewMode = 'list'">
-        List
-      </button>
-      <button class="btn btn-outline-secondary"
-              [class.active]="viewMode === 'image'"
-              (click)="viewMode = 'image'">
-        Cards
-      </button>
-    </div>
-  </div>
-</div>
-
-<div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-
-<div *ngIf="loading" class="text-muted">Loading…</div>
-
-<div *ngIf="!loading && cards.length === 0" class="alert alert-info">
-  No cards in this cube yet.
-</div>
-
 <!-- Two-pane layout -->
-<div *ngIf="!loading" class="row g-3">
+<div class="row g-3">
 
   <!-- LEFT -->
   <div class="col-12 col-lg-8">
@@ -315,323 +277,101 @@
 </div>
     </div>
 
-    <!-- Filters (ALL ROLES) -->
-  <div class="card shadow-sm mb-3">
-    <div class="card-body">
-<div class="d-flex align-items-center justify-content-between mb-2">
-  <div class="fw-semibold">Filters</div>
-
-  <div class="d-flex align-items-center gap-2">
-    <span class="text-muted small">
-      Showing {{ filteredCards.length }} of {{ cards.length }}
-      <span *ngIf="getActiveFilterCount() > 0" class="ms-1">
-        • <span class="badge text-bg-light border">{{ getActiveFilterCount() }} active</span>
-      </span>
-    </span>
-
-    <button class="btn btn-sm btn-outline-secondary" (click)="resetFilters()">
-      Reset
-    </button>
-
-    <button class="btn btn-sm btn-outline-secondary" (click)="toggleFilters()">
-      {{ filtersOpen ? 'Minimize' : 'Expand' }}
-    </button>
-  </div>
-</div>
-
-      <div *ngIf="filtersOpen" class="row g-2">
-        <div class="col-12 col-md-4">
-          <label class="form-label mb-1">Name</label>
-          <input class="form-control"
-                [(ngModel)]="filters.q"
-                (ngModelChange)="applyFilters()"
-                placeholder="e.g. blue, dark magician..." />
-        </div>
-
-        <div class="col-6 col-md-2">
-          <label class="form-label mb-1">Card Type</label>
-          <select class="form-select" [(ngModel)]="filters.cardType" (change)="applyFilters()">
-            <option value="">Any</option>
-            <option *ngFor="let t of cardTypeOptions" [value]="t">{{ t }}</option>
-          </select>
-        </div>
-
-        <div class="col-6 col-md-2">
-          <label class="form-label mb-1">Attribute</label>
-          <select class="form-select" [(ngModel)]="filters.attribute" (change)="applyFilters()">
-            <option value="">Any</option>
-            <option *ngFor="let a of attributeOptions" [value]="a">{{ a }}</option>
-          </select>
-        </div>
-
-        <div class="col-12 col-md-2">
-          <label class="form-label mb-1">Monster Type</label>
-          <select class="form-select" [(ngModel)]="filters.race" (change)="applyFilters()">
-            <option value="">Any</option>
-            <option *ngFor="let r of raceOptions" [value]="r">{{ r }}</option>
-          </select>
-        </div>
-
-        <div class="col-6 col-md-1">
-          <label class="form-label mb-1">Lvl ≥</label>
-          <input class="form-control" type="number" min="0"
-                [(ngModel)]="filters.levelMin" (ngModelChange)="applyFilters()" />
-        </div>
-
-        <div class="col-6 col-md-1">
-          <label class="form-label mb-1">Lvl ≤</label>
-          <input class="form-control" type="number" min="0"
-                [(ngModel)]="filters.levelMax" (ngModelChange)="applyFilters()" />
-        </div>
-
-        <div class="col-6 col-md-1">
-          <label class="form-label mb-1">ATK ≥</label>
-          <input class="form-control" type="number" min="0"
-                [(ngModel)]="filters.atkMin" (ngModelChange)="applyFilters()" />
-        </div>
-
-        <div class="col-6 col-md-1">
-          <label class="form-label mb-1">ATK ≤</label>
-          <input class="form-control" type="number" min="0"
-                [(ngModel)]="filters.atkMax" (ngModelChange)="applyFilters()" />
-        </div>
-
-        <div class="col-6 col-md-1">
-          <label class="form-label mb-1">DEF ≥</label>
-          <input class="form-control" type="number" min="0"
-                [(ngModel)]="filters.defMin" (ngModelChange)="applyFilters()" />
-        </div>
-
-        <div class="col-6 col-md-1">
-          <label class="form-label mb-1">DEF ≤</label>
-          <input class="form-control" type="number" min="0"
-                [(ngModel)]="filters.defMax" (ngModelChange)="applyFilters()" />
-        </div>
-
-        <div class="col-6 col-md-2">
-          <label class="form-label mb-1">Sort</label>
-          <select class="form-select" [(ngModel)]="filters.sortKey" (change)="applyFilters()">
-            <option value="name">Name</option>
-            <option value="atk">ATK</option>
-            <option value="def">DEF</option>
-            <option value="level">Level</option>
-          </select>
-        </div>
-
-        <div class="col-6 col-md-2">
-          <label class="form-label mb-1">Direction</label>
-          <select class="form-select" [(ngModel)]="filters.sortDir" (change)="applyFilters()">
-            <option value="asc">Asc</option>
-            <option value="desc">Desc</option>
-          </select>
-        </div>
-      </div>
+<app-card-browser
+  title="Card Pool"
+  [loading]="loading"
+  [error]="error"
+  emptyText="No cards in this cube yet."
+  [items]="filteredCards"
+  [(viewMode)]="viewMode"
+  [(selectedId)]="selectedCardId"
+  (selectedIdChange)="onPoolSelectedIdChange($event)"
+  [getId]="poolId"
+  [getName]="poolName"
+  [getImageUrl]="poolImage"
+  [getSubtext]="poolSubtext"
+  [getBadgeText]="poolBadgeText"
+  [getBadgeClass]="poolBadgeClass"
+  [getRowStyle]="poolRowStyle"
+  [showBannedIcon]="poolShowBannedIcon"
+>
+  <div headerExtras class="d-flex align-items-center gap-3">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" id="incBanned"
+             [(ngModel)]="includeBanned" (change)="load()" />
+      <label class="form-check-label" for="incBanned">Include banned</label>
     </div>
   </div>
 
-    <!-- List view -->
-    <div *ngIf="viewMode === 'list'" class="list-group">
-      <button
-        type="button"
-        class="list-group-item list-group-item-action"
-        *ngFor="let c of filteredCards"
-        (click)="select(c)"
-        [class.active]="isSelected(c.cardId)"
-        [ngStyle]="getRowStyleForCard(c)"
-      >
-        <div class="d-flex justify-content-between align-items-start">
-          <div>
-            <div class="fw-semibold">
-              {{ c.name ?? ('Card #' + c.cardId) }}
-            </div>
-            <div class="text-muted small">
-              Max: {{ c.maxQty }}
-            </div>
-          </div>
+<div filters>
+<app-card-filters-panel
+  [filters]="filters"
+  (filtersChange)="onFiltersChange($event)"
+  [filtersOpen]="filtersOpen"
+  (filtersOpenChange)="filtersOpen = $event"
+  [showToggle]="true"
+  [showing]="filteredCards.length"
+  [total]="cards.length"
+  [frameTypeOptions]="frameTypeOptions"
+  [monsterTypeOptions]="monsterTypeOptions"
+  [spellTypeOptions]="spellTypeOptions"
+  [trapTypeOptions]="trapTypeOptions"
+  [attributeOptions]="attributeOptions"
+></app-card-filters-panel>
+</div>
+</app-card-browser>
+  </div>
 
-          <span class="badge"
-                [class.text-bg-danger]="c.banned"
-                [class.text-bg-secondary]="!c.banned">
-            {{ c.banned ? 'BANNED' : 'OK' }}
-          </span>
-        </div>
+<!-- RIGHT: details panel -->
+<div class="col-12 col-lg-4">
+
+  <!-- POOL selected -->
+<app-card-details-panel *ngIf="selected as s" [card]="s" title="Details" subtitle="In cube pool">
+  <div *ngIf="isAdmin()" class="d-grid gap-2">
+
+      <div class="input-group">
+        <span class="input-group-text">Max</span>
+        <input class="form-control" type="number" min="1"
+               [(ngModel)]="editMaxQty[s.cardId]" />
+        <button class="btn btn-outline-primary"
+                (click)="saveMaxQty(s.cardId)">
+          Save
+        </button>
+      </div>
+
+      <button class="btn"
+              [class.btn-warning]="!s.banned"
+              [class.btn-success]="s.banned"
+              (click)="toggleBan(s.cardId, s.banned)">
+        {{ s.banned ? 'Unban' : 'Ban' }}
+      </button>
+
+      <button class="btn btn-outline-danger"
+              (click)="remove(s.cardId)">
+        Remove from cube
       </button>
     </div>
+  </app-card-details-panel>
 
-    <!-- Image grid view -->
-    <div *ngIf="viewMode === 'image'" class="row g-2">
-      <div class="col-6 col-sm-4 col-md-3 col-lg-2" *ngFor="let c of filteredCards">
-<div
-  class="pool-tile position-relative"
-  (click)="select(c)"
-  [class.is-selected]="isSelected(c.cardId)"
->
-<img
-  *ngIf="c.imageUrl"
-  [src]="c.imageUrl"
-  class="card-img"
-  alt="card"
-/>
-
-<div *ngIf="!c.imageUrl"
-     class="pool-noimg d-flex align-items-center justify-content-center text-muted">
-  No image
-</div>
-
-
-          <img
-            *ngIf="c.banned"
-            src="assets/icons/banned.svg"
-            alt="Banned"
-            class="position-absolute top-0 end-0 mx-2 my-1 banned-icon"
-          />
-        </div>
+  <!-- SEARCH selected -->
+<app-card-details-panel *ngIf="!selected && selectedSearch as s2" [card]="s2" title="Search result" subtitle="Add to cube">
+  <div *ngIf="isAdmin()" class="d-grid gap-2">
+      <div class="input-group">
+        <span class="input-group-text">Qty</span>
+        <input class="form-control" type="number" min="1"
+               [(ngModel)]="searchMaxQty[s2.id]" />
+        <button class="btn btn-primary" (click)="addSelectedSearch()">
+          Add to cube
+        </button>
       </div>
     </div>
+  </app-card-details-panel>
 
+  <!-- Nothing selected -->
+  <div *ngIf="!selected && !selectedSearch" class="alert alert-secondary">
+    Select a card to see details.
   </div>
 
-  <!-- RIGHT: details panel -->
-  <div class="col-12 col-lg-4">
-<div class="card shadow-sm" *ngIf="selected || selectedSearch">
-  <div class="card-body d-flex flex-column">
-
-    <!-- POOL selected -->
-    <ng-container *ngIf="selected as s; else searchSelected">
-
-      <div class="text-center mb-3">
-        <img *ngIf="s.imageUrl"
-             [src]="s.imageUrl"
-             class="img-fluid rounded border"
-             alt="card image"
-             style="max-height: 420px;" />
-        <div *ngIf="!s.imageUrl" class="text-muted">No image.</div>
-      </div>
-
-      <div class="mb-2">
-        <div class="fw-semibold">{{ s.name ?? ('Card #' + s.cardId) }}</div>
-        <div class="text-muted small">{{ s.humanReadableCardType ?? s.cardType ?? '' }}</div>
-        <div class="text-muted small" *ngIf="s.archetype">{{ s.archetype }}</div>
-      </div>
-
-      <div class="mb-2 small text-muted">
-        <div>ID: {{ s.cardId }}</div>
-        <div>Max Qty: {{ s.maxQty }}</div>
-        <div>
-          Status:
-          <span class="badge ms-1"
-                [class.text-bg-danger]="s.banned"
-                [class.text-bg-secondary]="!s.banned">
-            {{ s.banned ? 'BANNED' : 'OK' }}
-          </span>
-        </div>
-      </div>
-
-<div class="border rounded p-2 small flex-grow-1 mb-3 details-desc"
-     style="overflow-y:auto;">
-  {{ s.description ?? 'No description.' }}
 </div>
 
-
-        <!-- Stats -->
-        <div
-          *ngIf="selected.atk != null || selected.def != null || selected.level != null"
-          class="d-flex justify-content-between align-items-center small text-muted border-top pt-2 mt-2 pb-4"
-        >
-
-          <!-- Level / Rank -->
-          <div *ngIf="selected.level != null">
-            ⭐ Level: <strong>{{ selected.level }}</strong>
-          </div>
-
-          <!-- ATK -->
-          <div *ngIf="selected.atk != null">
-            ⚔️ ATK: <strong>{{ selected.atk }}</strong>
-          </div>
-
-          <!-- DEF (not for Links usually) -->
-          <div *ngIf="selected.def != null">
-            🛡️ DEF: <strong>{{ selected.def }}</strong>
-          </div>
-
-        </div>
-
-      <!-- Admin actions (pool) -->
-      <div *ngIf="isAdmin()" class="mt-auto d-grid gap-2">
-        <div class="input-group">
-          <span class="input-group-text">Max</span>
-          <input class="form-control" type="number" min="1"
-                 [(ngModel)]="editMaxQty[s.cardId]" />
-          <button class="btn btn-outline-primary"
-                  (click)="saveMaxQty(s.cardId)">
-            Save
-          </button>
-        </div>
-
-        <input class="form-control form-control-sm"
-               placeholder="Ban reason (optional)"
-               [(ngModel)]="banReason[s.cardId]" />
-
-        <button class="btn"
-                [class.btn-warning]="!s.banned"
-                [class.btn-success]="s.banned"
-                (click)="toggleBan(s.cardId, s.banned)">
-          {{ s.banned ? 'Unban' : 'Ban' }}
-        </button>
-
-        <button class="btn btn-outline-danger"
-                (click)="remove(s.cardId)">
-          Remove from cube
-        </button>
-      </div>
-    </ng-container>
-
-    <!-- SEARCH selected -->
-    <ng-template #searchSelected>
-      <ng-container *ngIf="selectedSearch as s2">
-
-        <div class="text-center mb-3">
-          <img *ngIf="s2.imageUrl"
-               [src]="s2.imageUrl"
-               class="img-fluid rounded border"
-               alt="card image"
-               style="max-height: 420px;" />
-          <div *ngIf="!s2.imageUrl" class="text-muted">No image.</div>
-        </div>
-
-        <div class="mb-2">
-          <div class="fw-semibold">{{ s2.name }}</div>
-          <div class="text-muted small">{{ s2.humanReadableCardType ?? s2.cardType ?? '' }}</div>
-          <div class="text-muted small" *ngIf="s2.archetype">{{ s2.archetype }}</div>
-        </div>
-
-        <div class="mb-2 small text-muted">
-          <div>ID: {{ s2.id }}</div>
-        </div>
-
-        <div class="flex-grow-1"></div>
-
-        <!-- Admin action (search): qty + add -->
-        <div *ngIf="isAdmin()" class="mt-auto d-grid gap-2">
-          <div class="input-group">
-            <span class="input-group-text">Qty</span>
-            <input class="form-control" type="number" min="1"
-                   [(ngModel)]="searchMaxQty[s2.id]" />
-            <button class="btn btn-primary" (click)="addSelectedSearch()">
-              Add to cube
-            </button>
-          </div>
-        </div>
-
-      </ng-container>
-    </ng-template>
-
-  </div>
-</div>
-
-<div *ngIf="!selected && !selectedSearch" class="alert alert-secondary">
-  Select a card to see details.
-</div>
-
-  </div>
 </div>

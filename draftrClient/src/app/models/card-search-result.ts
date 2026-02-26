@@ -5,4 +5,6 @@ export interface CardSearchResult {
   humanReadableCardType?: string | null;
   archetype?: string | null;
   imageUrl?: string | null;
+  frameType?: string | null;
+  race?: string | null;
 }

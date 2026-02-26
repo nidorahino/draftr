@@ -1,0 +1,101 @@
+<!-- Header -->
+<div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+  <div>
+    <h2 class="h5 mb-0">{{ title }}</h2>
+    <div *ngIf="subtitle" class="text-muted small">{{ subtitle }}</div>
+  </div>
+
+  <div class="d-flex align-items-center gap-2">
+    <!-- parent can inject extra header controls -->
+    <ng-content select="[headerExtras]"></ng-content>
+
+    <div class="btn-group btn-group-sm">
+      <button class="btn btn-outline-secondary"
+              [class.active]="viewMode === 'list'"
+              (click)="setMode('list')">
+        List
+      </button>
+      <button class="btn btn-outline-secondary"
+              [class.active]="viewMode === 'image'"
+              (click)="setMode('image')">
+        Cards
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- parent can inject filters block -->
+<ng-content select="[filters]"></ng-content>
+
+<!-- States -->
+<div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+<div *ngIf="loading" class="text-muted">Loading…</div>
+
+<div *ngIf="!loading && !error && items.length === 0" class="alert alert-info">
+  {{ emptyText }}
+</div>
+
+<!-- Views -->
+<div *ngIf="!loading && !error && items.length > 0">
+
+  <!-- List view -->
+  <div *ngIf="viewMode === 'list'" class="list-group">
+    <button type="button"
+            class="list-group-item list-group-item-action"
+            *ngFor="let it of items"
+            (click)="select(it)"
+            [class.active]="isSelected(it)"
+            [ngStyle]="getRowStyle(it) || null">
+      <div class="d-flex justify-content-between align-items-start gap-2">
+        <div class="min-w-0">
+          <div class="fw-semibold text-truncate">
+            {{ getName(it) || ('Item #' + getId(it)) }}
+          </div>
+          <div *ngIf="getSubtext(it)" class="text-muted small text-truncate">
+            {{ getSubtext(it) }}
+          </div>
+        </div>
+
+        <span *ngIf="getBadgeText(it)"
+              class="badge flex-shrink-0"
+              [ngClass]="getBadgeClass(it) || 'text-bg-secondary'">
+          {{ getBadgeText(it) }}
+        </span>
+      </div>
+    </button>
+  </div>
+
+  <!-- Image grid view -->
+  <div *ngIf="viewMode === 'image'" class="row g-2">
+    <div [class]="gridColsClass" *ngFor="let it of items">
+      <div class="cb-tile position-relative"
+           (click)="select(it)"
+           [class.is-selected]="isSelected(it)">
+
+        <img *ngIf="getImageUrl(it)"
+             [src]="getImageUrl(it)!"
+             class="cb-img"
+             alt="card" />
+
+        <div *ngIf="!getImageUrl(it)"
+             class="cb-noimg d-flex align-items-center justify-content-center text-muted">
+          No image
+        </div>
+
+        <img *ngIf="showBannedIcon(it)"
+             src="assets/icons/banned.svg"
+             alt="Banned"
+             class="cb-banned" />
+
+        <img *ngIf="isSelected(it)"
+            src="assets/icons/viewer_selected.svg"
+            alt="Selected"
+            class="cb-selected" />
+
+        <!-- optional projected overlay, e.g. qty badge -->
+        <ng-content select="[tileOverlay]"></ng-content>
+      </div>
+    </div>
+  </div>
+
+</div>

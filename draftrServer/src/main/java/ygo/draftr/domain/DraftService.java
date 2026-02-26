@@ -267,11 +267,11 @@ public class DraftService {
 
     private List<Long> generateDraftPoolCardIds(Long cubeId, int totalCardsNeeded) {
 
-        List<CubeCardQty> pool = cubeCardRepo.findCardQtyByCubeId(cubeId);
+        List<CubeCard> pool = cubeCardRepo.findByCubeIdAndBannedFalse(cubeId);
 
         List<Long> bag = new ArrayList<>();
-        for (CubeCardQty c : pool) {
-            for (int i = 0; i < c.maxQty(); i++) bag.add(c.cardId());
+        for (CubeCard c : pool) {
+            for (int i = 0; i < c.getMaxQty(); i++) bag.add(c.getCardId());
         }
 
         if (totalCardsNeeded > bag.size()) {

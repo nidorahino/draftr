@@ -2,48 +2,119 @@
 
 <!-- Top actions / pending spins (always visible once not loading) -->
 <div *ngIf="!loading" class="d-flex justify-content-between align-items-center mb-3">
-  <div class="d-flex gap-2 align-items-center">
-    <span *ngIf="loserSpinAvailable" class="badge text-bg-warning">
-      Loser spin available
-    </span>
+<div class="d-flex gap-2 align-items-center">
+  <span *ngIf="loserSpinAvailable && !inWinnerFlow()" class="badge text-bg-warning">
+    Loser spin available
+  </span>
 
-    <span *ngIf="winnerSpinAvailable" class="badge text-bg-success">
-      Winner spin available
-    </span>
+  <span *ngIf="winnerSpinAvailable && !inLoserFlow()" class="badge text-bg-success">
+    Winner spin available
+  </span>
 
-    <span *ngIf="checkingWheel" class="text-muted small">Checking…</span>
+  <span *ngIf="checkingWheel && !inAnySpinFlow()" class="text-muted small">Checking…</span>
+</div>
+
+  <!-- ROULETTE OVERLAY -->
+<div *ngIf="wheelOpen" class="wheel-overlay" (click)="onWheelBackdrop($event)">
+  <div class="wheel-modal" role="dialog" aria-modal="true">
+
+    <div class="wheel-head d-flex align-items-center justify-content-between">
+      <div class="wheel-title">
+        {{ wheelMode === 'WINNER' ? 'Winner Wheel' : 'Loser Wheel' }}
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary"
+        (click)="closeWheel()"
+        [disabled]="wheelSpinning"
+        title="Close"
+      >
+        ✕
+      </button>
+    </div>
+
+    <div class="wheel-body">
+
+      <div class="wheel-stage">
+
+        <!-- pointer -->
+        <div class="wheel-pointer" aria-hidden="true"></div>
+
+        <!-- wheel -->
+        <div
+          class="wheel"
+          [style.transform]="wheelTransform"
+          [class.wheel-spinning]="wheelSpinning"
+        >
+          <!-- optional center cap -->
+          <div class="wheel-cap"></div>
+        </div>
+
+      </div>
+
+      <div class="wheel-text mt-3 text-center">
+
+        <div class="text-muted small mt-1" *ngIf="wheelResultText">
+          {{ wheelResultText }}
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-center gap-2 mt-3">
+        <button
+          type="button"
+          class="btn btn-sm btn-success"
+          (click)="spinWheel()"
+          [disabled]="wheelSpinning"
+        >
+          {{ wheelSpinning ? 'Spinning…' : 'SPIN' }}
+        </button>
+      </div>
+
+      <div class="text-muted small mt-3 text-center">
+        After the wheel stops, we’ll load your reward offer.
+      </div>
+
+    </div>
   </div>
+</div>
 
-  <div class="d-flex gap-2">
-    <button
-      *ngIf="loserSpinAvailable"
-      class="btn btn-sm btn-outline-warning"
-      type="button"
-      (click)="openLoserSpin()"
-      [disabled]="loadingRewardOffer"
-    >
-      {{ loadingRewardOffer ? 'Loading…' : 'Claim Loser Spin' }}
-    </button>
+<div class="d-flex gap-2">
 
-    <button
-      *ngIf="winnerSpinAvailable"
-      class="btn btn-sm btn-outline-success"
-      type="button"
-      (click)="openWinnerSpin()"
-      [disabled]="claimingWinnerSpin"
-    >
-      {{ claimingWinnerSpin ? 'Claiming…' : 'Claim Winner Spin' }}
-    </button>
+  <!-- Loser spin button only when not in winner flow -->
+  <button
+    *ngIf="loserSpinAvailable && !inWinnerFlow()"
+    class="btn btn-sm btn-outline-warning"
+    type="button"
+    (click)="openLoserSpin()"
+    [disabled]="loadingRewardOffer || claimingLoserSpin || wheelSpinning"
+  >
+    {{ (loadingRewardOffer || claimingLoserSpin) ? 'Loading…' : 'Claim Loser Spin' }}
+  </button>
 
-    <button
-      class="btn btn-sm btn-outline-primary"
-      type="button"
-      (click)="openClaimLoss()"
-      [disabled]="!canClaimLoss()"
-    >
-      Claim Loss
-    </button>
-  </div>
+  <!-- Winner spin button only when not in loser flow -->
+  <button
+    *ngIf="winnerSpinAvailable && !inLoserFlow()"
+    class="btn btn-sm btn-outline-success"
+    type="button"
+    (click)="openWinnerSpin()"
+    [disabled]="claimingWinnerSpin || startingWinnerSpin || wheelSpinning"
+  >
+    {{ (claimingWinnerSpin || startingWinnerSpin) ? 'Claiming…' : 'Claim Winner Spin' }}
+  </button>
+
+  <!-- Claim loss hidden whenever ANY spin flow is active -->
+  <button
+    *ngIf="!inAnySpinFlow()"
+    class="btn btn-sm btn-outline-primary"
+    type="button"
+    (click)="openClaimLoss()"
+    [disabled]="!canClaimLoss()"
+  >
+    Claim Loss
+  </button>
+
+</div>
 </div>
 
 <!-- Claim loss panel -->
@@ -149,16 +220,15 @@
               />
 
               <!-- Pick toggle -->
-              <span
-                class="position-absolute bottom-0 end-0 m-1 badge"
-                [class.text-bg-success]="isPicked(c.cardId)"
-                [class.text-bg-secondary]="!isPicked(c.cardId)"
-                (click)="$event.stopPropagation(); togglePick(c.cardId)"
-                style="cursor: pointer;"
-                title="Pick"
-              >
-                {{ isPicked(c.cardId) ? 'Picked' : 'Pick' }}
-              </span>
+<button
+  type="button"
+  class="pick-bar"
+  [class.is-picked]="isPicked(c.cardId)"
+  (click)="$event.stopPropagation(); togglePick(c.cardId)"
+  [disabled]="applyingReward"
+>
+  {{ isPicked(c.cardId) ? 'Picked' : 'Pick' }}
+</button>
             </button>
 
             <div class="small text-muted mt-1 text-truncate">
@@ -173,35 +243,40 @@
         </div>
       </div>
 
-      <!-- Right: details -->
-      <div class="col-12 col-lg-4">
-        <div class="border rounded p-2">
-          <div class="fw-semibold mb-1">
-            {{ rewardSelectedDetail?.name || ('Card #' + rewardSelectedDetail?.cardId) }}
-          </div>
-
-          <div class="text-muted small mb-2" *ngIf="rewardSelectedDetail?.humanReadableCardType">
-            {{ rewardSelectedDetail.humanReadableCardType }}
-          </div>
-
-          <img
-            *ngIf="rewardSelectedDetail?.imageUrl"
-            [src]="rewardSelectedDetail.imageUrl"
-            [alt]="rewardSelectedDetail?.name || ('Card #' + rewardSelectedDetail?.cardId)"
-            class="img-fluid rounded mb-2"
-            style="background: rgba(255,255,255,0.04);"
-          />
-
-          <div class="small" *ngIf="rewardSelectedDetail?.description">
-            {{ rewardSelectedDetail.description }}
-          </div>
-
-          <div class="text-muted small mt-2"
-               *ngIf="rewardSelectedDetail?.atk != null || rewardSelectedDetail?.def != null">
-            ATK {{ rewardSelectedDetail?.atk ?? '-' }} / DEF {{ rewardSelectedDetail?.def ?? '-' }}
-          </div>
-        </div>
+<!-- Right: details panel (reuse shared component) -->
+<div class="col-12 col-lg-4">
+  <app-card-details-panel
+    *ngIf="rewardSelectedDetail as s"
+    [card]="s"
+    title="Details"
+    subtitle="Reward offer"
+  >
+    <!-- Optional: quick context / actions -->
+    <div class="d-grid gap-2">
+      <div class="text-muted small">
+        {{ rewardMode === 'WINNER_PICK2'
+            ? ('Pick exactly ' + rewardPickLimit + '.')
+            : ('Pick 1 to ' + rewardPickLimit + '. System bans 1 at random.') }}
       </div>
+
+      <button
+        type="button"
+        class="btn btn-sm"
+        [class.btn-success]="isPicked(s.cardId)"
+        [class.btn-outline-secondary]="!isPicked(s.cardId)"
+        (click)="togglePick(s.cardId)"
+        [disabled]="applyingReward"
+      >
+        {{ isPicked(s.cardId) ? 'Picked' : 'Pick' }}
+      </button>
+    </div>
+  </app-card-details-panel>
+
+  <!-- Nothing selected -->
+  <div *ngIf="!rewardSelectedDetail" class="alert alert-secondary">
+    Select a card to see details.
+  </div>
+</div>
     </div>
   </div>
 </div>
@@ -232,7 +307,7 @@
             class="btn btn-sm btn-primary"
             type="button"
             (click)="addMember()"
-            [disabled]="!addUsername?.trim()"
+            [disabled]="!addUsername.trim()"
           >
             Add
           </button>

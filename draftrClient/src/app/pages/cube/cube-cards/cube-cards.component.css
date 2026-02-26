@@ -134,58 +134,6 @@
 }
 
 /* ================================
-   Image grid tiles (card thumbnails)
-================================== */
-.pool-tile {
-  cursor: pointer;
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid rgba(232, 238, 252, 0.12);
-  background: rgba(10, 14, 22, 0.18);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-  transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
-}
-
-.pool-tile:hover {
-  transform: translateY(-1px);
-  border-color: rgba(90, 120, 255, 0.30);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.35);
-}
-
-.pool-tile.is-selected {
-  border-color: rgba(90, 120, 255, 0.55);
-  box-shadow: 0 0 0 3px rgba(90, 120, 255, 0.14), 0 6px 14px rgba(0,0,0,0.35);
-}
-
-/* keep images consistent */
-.pool-tile img.card-img {
-  width: 100%;
-  display: block;
-  aspect-ratio: 3 / 4;
-  object-fit: contain;
-}
-
-/* no-image placeholder */
-.pool-noimg {
-  aspect-ratio: 3 / 4;
-}
-
-/* ================================
-   Banned icon (your “perfect” version)
-================================== */
-.banned-icon {
-  filter:
-    drop-shadow(0 2px 6px rgba(0,0,0,0.55))
-    brightness(0) saturate(100%)
-    invert(14%) sepia(96%) saturate(6200%) hue-rotate(350deg) brightness(95%) contrast(120%)
-    drop-shadow(1px 0 0 #000)
-    drop-shadow(-1px 0 0 #000)
-    drop-shadow(0 1px 0 #000)
-    drop-shadow(0 -1px 0 #000)
-    drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-}
-
-/* ================================
    Details panel description background
 ================================== */
 .details-desc {
