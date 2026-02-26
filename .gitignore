@@ -10,6 +10,7 @@
 
 # Angular local environment
 src/environments/environment.local.ts
+src/environments/environment.ts
 
 # Logs
 *.log
