@@ -9,8 +9,8 @@
 *.key
 
 # Angular local environment
-src/environments/environment.local.ts
-src/environments/environment.ts
+draftrClient/environments/environment.local.ts
+draftrClient/src/environments/environment.ts
 
 # Logs
 *.log
