@@ -10,7 +10,6 @@
 
 # Angular local environment
 draftrClient/environments/environment.local.ts
-draftrClient/src/environments/environment.ts
 
 # Logs
 *.log
