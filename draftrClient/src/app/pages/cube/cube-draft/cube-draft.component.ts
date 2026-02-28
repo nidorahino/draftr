@@ -152,8 +152,12 @@ export class CubeDraftComponent implements OnInit, OnDestroy {
     });
   }
 
-  createLobby(): void {
-    if (!this.isAdmin || !this.cubeId) return;
+createLobby(): void {
+  if (!this.isAdmin || !this.cubeId) return;
+  if (this.sessions?.length) {
+    this.error = 'A draft session already exists. Close it before creating a new lobby.';
+    return;
+  }
 
     this.loading = true;
     this.error = null;
@@ -520,5 +524,7 @@ export class CubeDraftComponent implements OnInit, OnDestroy {
   selectSummaryCard(c: MyPackCard): void {
     this.summarySelected = c;
   }
+
+  
 
 }

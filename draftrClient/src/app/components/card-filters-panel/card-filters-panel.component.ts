@@ -126,4 +126,24 @@ export class CardFiltersPanelComponent implements OnChanges {
     if (!ft) return true;
     return !this.isSpellFrame(ft) && !this.isTrapFrame(ft);
   }
+
+  formatFrameType(ft: string | null | undefined): string {
+  const raw = (ft ?? '').toString().trim();
+  if (!raw) return '';
+
+  // effect_pendulum -> effect/pendulum
+  const withSlash = raw.replace(/_/g, '/');
+
+  // title-case each segment around /
+  return withSlash
+    .split('/')
+    .map(seg => this.titleCase(seg))
+    .join('/');
+}
+
+private titleCase(s: string): string {
+  const x = (s ?? '').toString().trim();
+  if (!x) return x;
+  return x.charAt(0).toUpperCase() + x.slice(1).toLowerCase();
+}
 }

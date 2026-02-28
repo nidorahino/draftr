@@ -1,5 +1,6 @@
 :host { display: block; }
 
+/* Consistent muted text in dark matte */
 :host ::ng-deep .text-muted {
   color: rgba(232, 238, 252, 0.60) !important;
 }
@@ -57,9 +58,45 @@
   box-shadow: 0 8px 22px rgba(0,0,0,0.35);
 }
 
-/* ===== Table polish ===== */
-.draft-table {
+/* ===== Alerts (dark matte) ===== */
+:host ::ng-deep .alert {
+  border-radius: 14px;
+  border: 1px solid rgba(232, 238, 252, 0.14);
+  background: rgba(10, 14, 22, 0.42);
   color: rgba(232, 238, 252, 0.90);
+}
+
+:host ::ng-deep .alert-secondary {
+  border-color: rgba(232, 238, 252, 0.14);
+  background: rgba(10, 14, 22, 0.34);
+}
+
+:host ::ng-deep .alert-danger {
+  border-color: rgba(255, 90, 120, 0.32);
+  background: rgba(255, 90, 120, 0.10);
+  color: rgba(255, 210, 220, 0.92);
+}
+
+:host ::ng-deep .alert-success {
+  border-color: rgba(90, 255, 220, 0.28);
+  background: rgba(90, 255, 220, 0.10);
+  color: rgba(210, 255, 246, 0.92);
+}
+
+/* ===== Table polish (fix bootstrap white table bg) ===== */
+:host ::ng-deep .draft-table {
+  color: rgba(232, 238, 252, 0.90);
+
+  /* override bootstrap table vars */
+  --bs-table-bg: transparent;
+  --bs-table-striped-bg: rgba(255,255,255,0.03);
+  --bs-table-hover-bg: rgba(90,120,255,0.08);
+  --bs-table-color: rgba(232, 238, 252, 0.90);
+  --bs-table-border-color: rgba(232, 238, 252, 0.08);
+}
+
+:host ::ng-deep .draft-table > :not(caption) > * > * {
+  background-color: transparent !important;
 }
 
 .draft-table thead th {
@@ -72,6 +109,11 @@
   border-top-color: rgba(232, 238, 252, 0.08);
 }
 
+:host ::ng-deep .draft-table tbody tr:hover > * {
+  background-color: rgba(90,120,255,0.08) !important;
+}
+
+/* ===== Badges ===== */
 .draft-badge {
   border: 1px solid rgba(232, 238, 252, 0.14);
   background: rgba(10, 14, 22, 0.30);
@@ -82,11 +124,47 @@
 .draft-badge-running { border-color: rgba(90, 255, 220, 0.26); }
 .draft-badge-done { border-color: rgba(90, 120, 255, 0.30); }
 
+/* Tone down bootstrap "text-bg-*" badges to match matte theme */
+:host ::ng-deep .badge.text-bg-primary {
+  background: rgba(90,120,255,0.22) !important;
+  border: 1px solid rgba(90,120,255,0.35) !important;
+  color: rgba(232,238,252,0.92) !important;
+}
+
+:host ::ng-deep .badge.text-bg-success {
+  background: rgba(90,255,220,0.16) !important;
+  border: 1px solid rgba(90,255,220,0.28) !important;
+  color: rgba(232,238,252,0.92) !important;
+}
+
+:host ::ng-deep .badge.text-bg-secondary {
+  background: rgba(232,238,252,0.10) !important;
+  border: 1px solid rgba(232,238,252,0.16) !important;
+  color: rgba(232,238,252,0.88) !important;
+}
+
+:host ::ng-deep .badge.text-bg-dark {
+  background: rgba(10,14,22,0.72) !important;
+  border: 1px solid rgba(232,238,252,0.14) !important;
+  color: rgba(232,238,252,0.92) !important;
+}
+
 /* List group inside panel (no white background) */
+:host ::ng-deep .draft-list {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(232, 238, 252, 0.08);
+}
+
 :host ::ng-deep .draft-list .list-group-item {
   background: transparent;
   color: rgba(232, 238, 252, 0.90);
   border-color: rgba(232, 238, 252, 0.08);
+  padding: 10px 12px;
+}
+
+:host ::ng-deep .draft-list .list-group-item + .list-group-item {
+  border-top-color: rgba(232, 238, 252, 0.08);
 }
 
 /* ===== Card tiles (reuse your wheel-style tiles) ===== */
@@ -140,6 +218,11 @@
   background: rgba(255,255,255,0.92);
 }
 
+/* Fix bootstrap .border being too light in dark mode */
+:host ::ng-deep .border {
+  border-color: rgba(232, 238, 252, 0.14) !important;
+}
+
 /* ===== Bootstrap skin (buttons/inputs) ===== */
 :host ::ng-deep .btn {
   border-radius: 14px;
@@ -158,4 +241,18 @@
 :host ::ng-deep .form-control:focus {
   border-color: rgba(90, 120, 255, 0.45);
   box-shadow: 0 0 0 6px rgba(90, 120, 255, 0.08);
+}
+
+:host ::ng-deep .form-control::placeholder {
+  color: rgba(232, 238, 252, 0.45);
+}
+
+:host ::ng-deep .form-label {
+  color: rgba(232, 238, 252, 0.75);
+}
+
+/* Optional: reduce harsh number spinner contrast (Chrome/WebKit) */
+:host ::ng-deep input[type="number"]::-webkit-outer-spin-button,
+:host ::ng-deep input[type="number"]::-webkit-inner-spin-button {
+  opacity: 0.65;
 }

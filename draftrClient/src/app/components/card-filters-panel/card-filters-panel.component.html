@@ -29,11 +29,11 @@
 
       <!-- ================= SEARCH ================= -->
       <div class="mb-3">
-        <div class="fw-semibold small text-muted mb-2">Search</div>
+        <div class="fw-semibold small text-muted mb-2"></div>
 
         <div class="row g-2">
           <div class="col-12 col-md-6">
-            <label class="form-label mb-1">Name</label>
+            <label class="form-label mb-1">Search</label>
             <input class="form-control"
                   [(ngModel)]="model.q"
                   (ngModelChange)="onAnyChange()"
@@ -44,7 +44,7 @@
 
       <!-- ================= CARD KIND ================= -->
       <div class="mb-3">
-        <div class="fw-semibold small text-muted mb-2">Card Kind</div>
+        <div class="fw-semibold small text-muted mb-2"></div>
 
         <div class="row g-2 align-items-end">
 
@@ -53,8 +53,10 @@
             <select class="form-select"
                     [(ngModel)]="model.frameType"
                     (change)="onFrameTypeChange()">
-              <option value="">Any</option>
-              <option *ngFor="let ft of frameTypeOptions" [value]="ft">{{ ft }}</option>
+<option value="">Any</option>
+<option *ngFor="let ft of frameTypeOptions" [value]="ft">
+  {{ formatFrameType(ft) }}
+</option>
             </select>
           </div>
 
@@ -83,11 +85,11 @@
 
       <!-- ================= SORT ================= -->
       <div>
-        <div class="fw-semibold small text-muted mb-2">Sort</div>
+        <div class="fw-semibold small text-muted mb-2"></div>
 
         <div class="row g-2">
           <div class="col-6 col-md-3">
-            <label class="form-label mb-1">Sort</label>
+            <label class="form-label mb-1">Sort By</label>
             <select class="form-select"
                     [(ngModel)]="model.sortKey"
                     (change)="onAnyChange()">

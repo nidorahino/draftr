@@ -40,55 +40,47 @@
 }
 
 /* -------------------------
-   Icon rail (attribute + level/rank)
-   Now used as a ROW under name
+   Icon rail (RIGHT of image)
    ------------------------- */
+
+.icon-rail{
+  display: flex;
+  align-items: flex-start;
+  padding-top: 4px;
+  flex-shrink: 0;
+}
+
 .icon-col{
   display: flex;
-  flex-direction: column; /* default (kept for safety) */
-  gap: 6px;
+  flex-direction: column;
+  gap: 10px;
   flex-shrink: 0;
   pointer-events: none;
 }
 
-.icon-row{
+/* each row item (icon + text) */
+.rail-item{
   display: flex;
-  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
 }
 
-/* when placed in the new row layout */
-.icon-col-row{
-  flex-direction: row;
-  gap: 10px;
-  pointer-events: none;
-}
-
-.icon-badge{
-  position: relative;
-  width: 72px;
-  height: 72px;
-}
-
-.icon-img{
-  width: 72px;
-  height: 72px;
-  display: block;
+/* icon size */
+.rail-icon{
+  width: 36px;
+  height: 36px;
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.45));
 }
 
-.icon-text{
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  font-weight: 900;
-  font-size: 34px;
-  line-height: 1;
-  text-shadow:
-    0 2px 4px rgba(0,0,0,0.9),
-    0 0 6px rgba(0,0,0,0.6);
+/* text next to icon */
+.rail-text{
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  opacity: 0.9;
+  text-transform: uppercase;
 }
 
 /* -------------------------
@@ -186,3 +178,57 @@
   letter-spacing: 0.04em;
   font-weight: 800;
 }
+
+.image-rail-row{
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+/* left side grows, centers image within its own space */
+.image-col{
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* right side is consistent width */
+.rail-col{
+  flex: 0 0 160px;   /* tweak to taste: 140–190 */
+  max-width: 160px;
+}
+
+/* keep rail items from widening the column */
+.rail-item{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+}
+
+.rail-icon{
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.45));
+}
+
+/* Option A: truncate long labels (recommended for consistent width) */
+.rail-text{
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  opacity: 0.9;
+  text-transform: uppercase;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(160px - 36px - 8px); /* rail width - icon - gap */
+}
+
+/* Option B (instead of truncation): allow wrapping without widening:
+.rail-text{
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+*/

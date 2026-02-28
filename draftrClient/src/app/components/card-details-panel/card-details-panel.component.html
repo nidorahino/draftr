@@ -1,35 +1,74 @@
 <div class="panel h-100" *ngIf="card; else empty">
   <div class="panel-body d-flex flex-column">
 
-    <!-- Image -->
-    <div class="d-flex align-items-start justify-content-center gap-3 mb-3">
+<!-- Image + right-side rail (fixed layout: image won't shift) -->
+<div class="image-rail-row mb-3">
 
-<!-- Card image -->
-<div class="d-flex justify-content-center mb-3">
-  <div class="card-image-wrap position-relative">
+  <!-- LEFT: image area (centers image, doesn't move) -->
+  <div class="image-col">
+    <div class="d-flex justify-content-center">
+      <div class="card-image-wrap position-relative">
 
-    <img
-      *ngIf="imageUrl"
-      [src]="imageUrl"
-      class="img-fluid rounded border"
-      alt="card image"
-      style="max-height: 420px;"
-    />
+        <img
+          *ngIf="imageUrl"
+          [src]="imageUrl"
+          class="img-fluid rounded border"
+          alt="card image"
+          style="max-height: 420px;"
+        />
 
-    <!-- BANNED overlay -->
-    <img
-      *ngIf="pool?.banned"
-      src="assets/icons/banned.svg"
-      class="banned-overlay"
-      alt="Banned"
-    />
+        <!-- BANNED overlay -->
+        <img
+          *ngIf="pool?.banned"
+          src="assets/icons/banned.svg"
+          class="banned-overlay"
+          alt="Banned"
+        />
 
-    <div *ngIf="!imageUrl" class="text-muted">No image.</div>
+        <div *ngIf="!imageUrl" class="text-muted">No image.</div>
 
+      </div>
+    </div>
   </div>
-</div>
+
+  <!-- RIGHT: rail area (fixed width) -->
+  <div class="rail-col"
+       *ngIf="attributeIconUrl || poolLevel != null || isPendulum || raceIconUrl">
+
+    <div class="icon-col">
+
+      <!-- ATTRIBUTE -->
+      <div class="rail-item" *ngIf="attributeIconUrl">
+        <img class="rail-icon" [src]="attributeIconUrl" [alt]="attributeAlt" />
+        <span class="rail-text">{{ attributeAlt }}</span>
+      </div>
+
+      <!-- LEVEL / RANK -->
+      <div class="rail-item"
+           *ngIf="displayLevel != null"
+           [title]="isXyz ? 'Rank' : 'Level'">
+        <img class="rail-icon"
+             [src]="isXyz ? 'assets/icons/rank.svg' : 'assets/icons/level.svg'"
+             alt="level/rank" />
+        <span class="rail-text">{{ displayLevel }}</span>
+      </div>
+
+      <!-- PENDULUM -->
+      <div class="rail-item" *ngIf="isPendulum">
+        <img class="rail-icon" src="assets/icons/scales.png" alt="Pendulum" />
+        <span class="rail-text">Pendulum</span>
+      </div>
+
+      <!-- RACE -->
+      <div class="rail-item" *ngIf="raceIconUrl && raceLabel">
+        <img class="rail-icon" [src]="raceIconUrl" [alt]="raceLabel" />
+        <span class="rail-text">{{ raceLabel }}</span>
+      </div>
 
     </div>
+  </div>
+
+</div>
 
 <!-- Name row -->
 <div class="name-row mb-2">
@@ -43,33 +82,6 @@
   </div>
 
 </div>
-
-<!-- Icon rail row (under name) -->
-<!-- <div class="icon-row mb-2" *ngIf="attributeIconUrl || poolLevel != null">
-
-  <div class="icon-col icon-col-row">
-
-    <div class="icon-badge" *ngIf="attributeIconUrl">
-      <img class="icon-img" [src]="attributeIconUrl" alt="type/attribute" />
-    </div>
-
-
-    <div
-      class="icon-badge"
-      *ngIf="poolLevel != null"
-      [title]="isXyz ? 'Rank' : 'Level'"
-    >
-      <img
-        class="icon-img"
-        [src]="isXyz ? 'assets/icons/rank.svg' : 'assets/icons/level.svg'"
-        alt="level/rank"
-      />
-      <span class="icon-text">{{ poolLevel }}</span>
-    </div>
-
-  </div>
-
-</div> -->
 
 <!-- Description (pool-only) -->
 <ng-container *ngIf="pool as p">

@@ -37,6 +37,15 @@ export class CardDetailsPanelComponent {
     return this.card.humanReadableCardType ?? this.card.cardType ?? '';
   }
 
+  get displayLevel(): number | null {
+  const lvl = this.poolLevel;
+
+  if (lvl == null) return null;
+  if (lvl <= 0) return null;
+
+  return lvl;
+}
+
   get imageUrl(): string | null {
     return this.card?.imageUrl ?? null;
   }
@@ -80,8 +89,8 @@ export class CardDetailsPanelComponent {
 
     // Spell / Trap override attribute icons
     const type = (this.displayType ?? '').toLowerCase();
-    if (type.includes('spell')) return 'assets/icons/spell.png';
-    if (type.includes('trap')) return 'assets/icons/trap.png';
+    if (type.includes('spell')) return 'assets/attributes/spell.png';
+    if (type.includes('trap')) return 'assets/attributes/trap.png';
 
     // Monsters: use attribute field (LIGHT/DARK/etc)
     const raw = (p?.attribute ?? '').trim().toLowerCase();
@@ -89,14 +98,14 @@ export class CardDetailsPanelComponent {
     // expected: dark, divine, earth, fire, light, water, wind
     // fallback to light if something unexpected happens
     switch (raw) {
-      case 'dark': return 'assets/icons/dark.png';
-      case 'divine': return 'assets/icons/divine.png';
-      case 'earth': return 'assets/icons/earth.png';
-      case 'fire': return 'assets/icons/fire.png';
-      case 'light': return 'assets/icons/light.png';
-      case 'water': return 'assets/icons/water.png';
-      case 'wind': return 'assets/icons/wind.png';
-      default: return 'assets/icons/light.png';
+      case 'dark': return 'assets/attributes/dark.png';
+      case 'divine': return 'assets/attributes/divine.png';
+      case 'earth': return 'assets/attributes/earth.png';
+      case 'fire': return 'assets/attributes/fire.png';
+      case 'light': return 'assets/attributes/light.png';
+      case 'water': return 'assets/attributes/water.png';
+      case 'wind': return 'assets/attributes/wind.png';
+      default: return 'assets/attributes/light.png';
     }
   }
 
@@ -152,4 +161,38 @@ get formattedTypeline(): string {
     this.card?.race ?? (this.pool as any)?.race
   );
 }
+
+get isPendulum(): boolean {
+  const frame = (this.pool?.frameType ?? '').toLowerCase();
+  return frame.includes('pendulum');
+}
+
+get raceLabel(): string | null {
+  const race = (this.pool?.race ?? '').trim();
+  return race ? race.toUpperCase() : null;
+}
+
+get raceIconUrl(): string | null {
+  const type = (this.displayType ?? '').toLowerCase();
+  const race = (this.pool?.race ?? '').trim().toLowerCase();
+
+  if (!race) return null;
+
+  // Spell / Trap handling
+  if (type.includes('spell') || type.includes('trap')) {
+
+    // Normal Spell / Normal Trap
+    if (race === 'normal') {
+      return 'assets/race/normal.svg';
+    }
+
+    // Other spell/trap subtypes (Counter, Continuous, Field, etc.)
+    return `assets/race/${race}.png`;
+  }
+
+  // Monster races (Beast, Warrior, etc.)
+  const normalized = race.replace(/\s+/g, '_');
+  return `assets/race/${normalized}.png`;
+}
+
 }
