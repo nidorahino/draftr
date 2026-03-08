@@ -115,7 +115,6 @@ filter:
 }
 
 .list-group-item.active {
-  border-color: rgba(90, 120, 255, 0.40);
   background: rgba(90, 120, 255, 0.16);
   color: rgba(232, 238, 252, 0.96);
 }
