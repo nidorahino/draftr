@@ -27,7 +27,7 @@ export const routes: Routes = [
     component: CubeShellComponent,
     canActivate: [authGuard],
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'cards' },
+      { path: '', pathMatch: 'full', redirectTo: 'members' },
       { path: 'cards', component: CubeCardsComponent },
       { path: 'members', component: CubeMembersComponent },
       { path: 'audit', component: CubeAuditComponent },

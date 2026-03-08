@@ -35,29 +35,6 @@
   color: var(--text);
 }
 
-/* ========= List group glass ========= */
-:host ::ng-deep .list-group-item {
-  border: 1px solid var(--glass-border-2);
-  background: rgba(10, 14, 22, 0.18);
-  color: var(--text);
-}
-
-:host ::ng-deep .list-group-item + .list-group-item {
-  margin-top: 8px;
-  border-radius: 14px;
-}
-
-:host ::ng-deep .list-group-item-action:hover {
-  background: rgba(90, 120, 255, 0.10);
-  border-color: rgba(90, 120, 255, 0.25);
-}
-
-:host ::ng-deep .list-group-item.active {
-  background: rgba(90, 120, 255, 0.16);
-  border-color: rgba(90, 120, 255, 0.35);
-  color: var(--text);
-}
-
 /* ========= Alerts: dark (no white blocks) ========= */
 :host ::ng-deep .alert {
   border-radius: 14px;

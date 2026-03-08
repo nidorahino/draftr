@@ -27,7 +27,7 @@ export class CubeCardsComponent implements OnInit {
   cards: CubeCardDetails[] = [];
   selected: CubeCardDetails | null = null;
 
-  viewMode: 'list' | 'image' = 'image';
+  viewMode: 'list' | 'image' = 'list';
   includeBanned = true;
 
   loading = true;
@@ -71,11 +71,9 @@ poolName = (c: CubeCardDetails) => c.name ?? '';
 
 poolImage = (c: CubeCardDetails) => c.imageUrl ?? null;
 
-poolSubtext = (c: CubeCardDetails) => `Max: ${c.maxQty}`;
+poolBadgeText = (c: CubeCardDetails) => c.banned ? 'BANNED' : `QTY ${c.maxQty}`;
 
-poolBadgeText = (c: CubeCardDetails) => (c.banned ? 'BANNED' : 'OK');
-
-poolBadgeClass = (c: CubeCardDetails) => (c.banned ? 'text-bg-danger' : 'text-bg-secondary');
+poolBadgeClass = (c: CubeCardDetails) => (c.banned ? 'text-bg-danger' : 'text-bg-dark');
 
 poolRowStyle = (c: CubeCardDetails) => this.getRowStyleForCard(c);
 
@@ -661,7 +659,9 @@ applyFilters() {
   let list = [...this.cards];
 
   // Name search
-  if (f.q.trim()) list = list.filter(c => contains(c.name, f.q.trim()));
+  if (f.q.trim()) {
+    list = list.filter(c => contains(c.name, f.q.trim()));
+  }
 
   // Frame Type
   if (f.frameType) {
@@ -676,7 +676,7 @@ applyFilters() {
     );
   }
 
-  // Race/Subtype (contextual)
+  // Race / subtype
   if (f.race) {
     list = list.filter(c => eqi(c.race, f.race));
   }
@@ -691,55 +691,94 @@ applyFilters() {
   if (usingStats) {
     list = list.filter(c => this.isMonsterFrame(c.frameType));
 
-    if (lvlActive) list = list.filter(c => inRange((c as any).level, f.levelMin, f.levelMax));
-    if (atkActive) list = list.filter(c => inRange((c as any).atk, f.atkMin, f.atkMax));
-    if (defActive) list = list.filter(c => inRange((c as any).def, f.defMin, f.defMax));
+    if (lvlActive) list = list.filter(c => inRange(c.level, f.levelMin, f.levelMax));
+    if (atkActive) list = list.filter(c => inRange(c.atk, f.atkMin, f.atkMax));
+    if (defActive) list = list.filter(c => inRange(c.def, f.defMin, f.defMax));
   }
 
-  // Sort
+  // Sort: frame type first, chosen field second
   const dir = f.sortDir === 'asc' ? 1 : -1;
-  list.sort((a: any, b: any) => {
+
+  list.sort((a: CubeCardDetails, b: CubeCardDetails) => {
+    const frameCompare =
+      this.getFrameTypeOrder(a.frameType) - this.getFrameTypeOrder(b.frameType);
+
+    if (frameCompare !== 0) return frameCompare;
+
     const av = f.sortKey === 'name' ? (a.name ?? '') : (a as any)[f.sortKey];
     const bv = f.sortKey === 'name' ? (b.name ?? '') : (b as any)[f.sortKey];
 
-    if (av == null && bv == null) return 0;
-    if (av == null) return 1;
-    if (bv == null) return -1;
+    const valueCompare = this.compareNullableValues(av, bv) * dir;
+    if (valueCompare !== 0) return valueCompare;
 
-    if (typeof av === 'string') return av.localeCompare(String(bv)) * dir;
-    return (Number(av) - Number(bv)) * dir;
+    return this.compareNullableValues(a.name ?? '', b.name ?? '');
   });
 
   this.filteredCards = list;
 }
 
-  getRowStyleForCard(c: { frameType?: string | null; cardType?: string | null; humanReadableCardType?: string | null }) {
-    const ft = (c.frameType ?? '').toLowerCase();
-    const type = (c.humanReadableCardType ?? c.cardType ?? '').toLowerCase();
+getRowStyleForCard(c: { frameType?: string | null; cardType?: string | null; humanReadableCardType?: string | null }) {
+  const ft = (c.frameType ?? '').toLowerCase();
+  const type = (c.humanReadableCardType ?? c.cardType ?? '').toLowerCase();
 
-    // prefer frameType
-    if (ft.includes('normal'))   return { background: '#FDE075' };   // normal monster
-    if (ft.includes('effect'))   return { background: '#F0803C' };   // effect monster
-    if (ft.includes('spell'))    return { background: '#00A381' };   // spell
-    if (ft.includes('trap'))     return { background: '#C05090' };   // trap
-    if (ft.includes('fusion'))   return { background: '#8C61A3' };   // fusion
-    if (ft.includes('ritual'))   return { background: '#98C8E0' };   // ritual
-    if (ft.includes('synchro'))  return { background: '#FFFFFF' };   // synchro
-    if (ft.includes('xyz'))      return { background: '#333333', color: '#fff' }; // xyz
-    if (ft.includes('link'))     return { background: '#003366', color: '#fff' }; // link
+  // Pendulum hybrids first
+  if (ft.includes('pendulum')) {
+    if (ft.includes('normal')) {
+      return {
+        background: 'linear-gradient(135deg, #F6D36A 0%, #4CB69F 100%)',
+        color: '#000'
+      };
+    }
 
-    // fallback if you only have cardType strings
-    if (type.includes('spell'))  return { background: '#00A381' };
-    if (type.includes('trap'))   return { background: '#C05090' };
-    if (type.includes('fusion')) return { background: '#8C61A3' };
-    if (type.includes('ritual')) return { background: '#98C8E0' };
-    if (type.includes('synchro'))return { background: '#FFFFFF' };
-    if (type.includes('xyz'))    return { background: '#333333', color: '#fff' };
-    if (type.includes('link'))   return { background: '#003366', color: '#fff' };
-    if (type.includes('monster'))return { background: '#F0803C' };
+    if (ft.includes('effect')) {
+      return {
+        background: 'linear-gradient(135deg, #E79A63 0%, #4CB69F 100%)',
+        color: '#000'
+      };
+    }
 
-    return {};
+    if (ft.includes('fusion')) {
+      return {
+        background: 'linear-gradient(135deg, #9A76C2 0%, #4CB69F 100%)',
+        color: '#000'
+      };
+    }
+
+    if (ft.includes('synchro')) {
+      return {
+        background: 'linear-gradient(135deg, #F2F2F2 0%, #4CB69F 100%)',
+        color: '#000'
+      };
+    }
+
+    if (ft.includes('xyz')) {
+      return {
+        background: 'linear-gradient(135deg, #444444 0%, #4CB69F 100%)',
+        color: '#fff'
+      };
+    }
+
+    if (ft.includes('ritual')) {
+      return {
+        background: 'linear-gradient(135deg, #4F86C6 0%, #4CB69F 100%)',
+        color: '#fff'
+      };
+    }
   }
+
+  // Standard frames
+  if (ft.includes('normal'))   return { background: '#F6D36A', color: '#000' };
+  if (ft.includes('effect'))   return { background: '#E79A63', color: '#000' };
+  if (ft.includes('spell'))    return { background: '#4CB69F', color: '#000' };
+  if (ft.includes('trap'))     return { background: '#B96AA2', color: '#000' };
+  if (ft.includes('fusion'))   return { background: '#9A76C2', color: '#000' };
+  if (ft.includes('ritual'))   return { background: '#4F86C6', color: '#000' };
+  if (ft.includes('synchro'))  return { background: '#F2F2F2', color: '#000' };
+  if (ft.includes('xyz'))      return { background: '#444444', color: '#fff' };
+  if (ft.includes('link'))     return { background: '#2F5D8C', color: '#fff' };
+
+  return {};
+}
 
   toggleFilters() {
   this.filtersOpen = !this.filtersOpen;
@@ -779,5 +818,43 @@ private isMonsterFrame(frameType: string | null | undefined): boolean {
   const ft = this.norm(frameType);
   if (!ft) return true;
   return !this.isSpellFrame(ft) && !this.isTrapFrame(ft);
+}
+
+private readonly FRAME_TYPE_ORDER: Record<string, number> = {
+  normal: 1,
+  effect: 2,
+  ritual: 3,
+  fusion: 4,
+  synchro: 5,
+  xyz: 6,
+  link: 7,
+
+  normal_pendulum: 8,
+  effect_pendulum: 9,
+  ritual_pendulum: 10,
+  fusion_pendulum: 11,
+  synchro_pendulum: 12,
+  xyz_pendulum: 13,
+
+  spell: 20,
+  trap: 21,
+  token: 30,
+};
+
+private getFrameTypeOrder(frameType: string | null | undefined): number {
+  const ft = this.norm(frameType);
+  return this.FRAME_TYPE_ORDER[ft] ?? 999;
+}
+
+private compareNullableValues(a: any, b: any): number {
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+
+  if (typeof a === 'string' || typeof b === 'string') {
+    return String(a).localeCompare(String(b));
+  }
+
+  return Number(a) - Number(b);
 }
 }

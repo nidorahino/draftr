@@ -46,22 +46,35 @@
             (click)="select(it)"
             [class.active]="isSelected(it)"
             [ngStyle]="getRowStyle(it) || null">
-      <div class="d-flex justify-content-between align-items-start gap-2">
-        <div class="min-w-0">
-          <div class="fw-semibold text-truncate">
-            {{ getName(it) || ('Item #' + getId(it)) }}
-          </div>
-          <div *ngIf="getSubtext(it)" class="text-muted small text-truncate">
-            {{ getSubtext(it) }}
-          </div>
-        </div>
+<div class="d-flex align-items-center justify-content-between gap-2">
 
-        <span *ngIf="getBadgeText(it)"
-              class="badge flex-shrink-0"
-              [ngClass]="getBadgeClass(it) || 'text-bg-secondary'">
-          {{ getBadgeText(it) }}
-        </span>
-      </div>
+  <div class="d-flex align-items-center gap-2 min-w-0">
+
+<div class="d-flex align-items-center gap-2 min-w-0">
+  <img *ngIf="isSelected(it)"
+       src="assets/icons/viewer_selected.svg"
+       alt="Selected"
+       class="cb-list-selected" />
+
+  <span class="cb-list-name text-truncate">
+    {{ getName(it) || ('Item #' + getId(it)) }}
+  </span>
+</div>
+
+    <span *ngIf="getSubtext(it)"
+          class="text-muted small text-truncate">
+      • {{ getSubtext(it) }}
+    </span>
+
+  </div>
+
+  <span *ngIf="getBadgeText(it)"
+        class="badge flex-shrink-0"
+        [ngClass]="getBadgeClass(it) || 'text-bg-secondary'">
+    {{ getBadgeText(it) }}
+  </span>
+
+</div>
     </button>
   </div>
 

@@ -64,4 +64,5 @@ export class CardBrowserComponent<TItem> {
     this.selectedId = id;
     this.selectedIdChange.emit(id);
   }
+  
 }

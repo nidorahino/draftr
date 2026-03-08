@@ -16,7 +16,6 @@
   box-shadow: none;
 }
 
-
 /* IMAGE */
 
 .cb-img {
@@ -79,6 +78,154 @@ filter:
 
   drop-shadow(0 4px 12px rgba(0,0,0,0.95))
   drop-shadow(0 8px 24px rgba(0,0,0,0.85));
+
+  opacity: 0.95;
+}
+
+:host {
+  display: block;
+}
+
+/* utility */
+.min-w-0 {
+  min-width: 0;
+}
+
+/* =========================
+   List view
+========================= */
+.list-group {
+  background: transparent;
+}
+
+.list-group-item {
+  border: 1px solid rgba(232, 238, 252, 0.10);
+  background: rgba(10, 14, 22, 0.18);
+  color: rgba(232, 238, 252, 0.90);
+  padding: 0.45rem 0.75rem;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    transform 120ms ease;
+}
+
+.list-group-item + .list-group-item {
+  margin-top: 6px;
+  border-top-width: 1px;
+}
+
+.list-group-item.active {
+  border-color: rgba(90, 120, 255, 0.40);
+  background: rgba(90, 120, 255, 0.16);
+  color: rgba(232, 238, 252, 0.96);
+}
+
+.list-group-item .text-muted {
+  color: rgba(232, 238, 252, 0.60) !important;
+}
+
+/* optional: keep badge from stretching */
+.list-group-item .badge {
+  white-space: nowrap;
+}
+
+/* =========================
+   Image tiles
+========================= */
+.cb-tile {
+  cursor: pointer;
+  border-radius: 10px;
+  overflow: hidden;
+  border: none;
+  box-shadow: none;
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.cb-tile:hover {
+  transform: translateY(-5px);
+}
+
+.cb-tile.is-selected {
+  box-shadow: none;
+}
+
+.cb-img {
+  width: 100%;
+  display: block;
+  aspect-ratio: 3 / 4;
+  object-fit: contain;
+}
+
+.cb-noimg {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+}
+
+.cb-banned {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  filter:
+    invert(17%)
+    sepia(96%)
+    saturate(7465%)
+    hue-rotate(358deg)
+    brightness(92%)
+    contrast(115%)
+    drop-shadow(0 2px 3px rgba(0,0,0,0.95))
+    drop-shadow(0 4px 6px rgba(0,0,0,0.85));
+  pointer-events: none;
+}
+
+.cb-selected {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  width: 50%;
+  height: 50%;
+  object-fit: contain;
+  pointer-events: none;
+  filter:
+    brightness(0)
+    invert(95%)
+    sepia(2%)
+    saturate(50%)
+    hue-rotate(180deg)
+    drop-shadow(0 4px 12px rgba(0,0,0,0.95))
+    drop-shadow(0 8px 24px rgba(0,0,0,0.85));
+  opacity: 0.95;
+}
+
+@font-face {
+  font-family: 'Matrix Regular';
+  src: url('/assets/fonts/matrix_regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.cb-list-name {
+  font-family: 'Matrix Regular', serif;
+  font-size: 1.6rem;
+  line-height: 1;
+  font-weight: 400;  /* normal */
+  letter-spacing: 1px;
+}
+
+.cb-list-selected {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  object-fit: contain;
+
+  filter:
+    brightness(0)
+    invert(95%)
+    drop-shadow(0 3px 6px rgba(0,0,0,1))
+    drop-shadow(0 6px 12px rgba(0,0,0,0.95));
 
   opacity: 0.95;
 }

@@ -115,25 +115,6 @@
 }
 
 /* ================================
-   List group (list view + search results)
-================================== */
-:host ::ng-deep .list-group-item {
-  border-color: rgba(232, 238, 252, 0.10);
-  background: rgba(10, 14, 22, 0.18);
-  color: rgba(232, 238, 252, 0.90);
-}
-
-:host ::ng-deep .list-group-item-action:hover {
-  background: rgba(90, 120, 255, 0.10);
-}
-
-:host ::ng-deep .list-group-item.active {
-  border-color: rgba(90, 120, 255, 0.45);
-  background: rgba(90, 120, 255, 0.16);
-  color: rgba(232, 238, 252, 0.96);
-}
-
-/* ================================
    Details panel description background
 ================================== */
 .details-desc {

@@ -94,9 +94,9 @@
 }
 
 .card-name{
-  font-weight: 800;
-  font-size: 1.35rem;   /* main size increase */
-  line-height: 1.15;    /* keeps it compact */
+  font-weight: 400;
+  font-size: 2rem;   /* main size increase */
+  line-height: 1;    /* keeps it compact */
   letter-spacing: 0.02em;
 }
 
@@ -232,3 +232,15 @@
   overflow-wrap: anywhere;
 }
 */
+
+@font-face {
+  font-family: 'Matrix Regular';
+  src: url('/assets/fonts/matrix_regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.card-name {
+  font-family: 'Matrix Regular', serif;
+}
