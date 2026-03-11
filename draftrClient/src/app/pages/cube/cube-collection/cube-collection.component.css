@@ -71,10 +71,3 @@
   width: 260px;
   max-width: 100%;
 }
-
-/* ========= Details description: remove white (#fafafa) ========= */
-.details-desc {
-  border: 1px solid rgba(232, 238, 252, 0.12) !important;
-  background: rgba(10, 14, 22, 0.35) !important;
-  color: rgba(232, 238, 252, 0.86);
-}

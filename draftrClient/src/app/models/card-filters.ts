@@ -1,4 +1,4 @@
-export type SortKey = 'name' | 'atk' | 'def' | 'level';
+export type SortKey = 'name' | 'atk' | 'def' | 'level' | 'updatedAt';
 export type SortDir = 'asc' | 'desc';
 
 export interface CardFilters {

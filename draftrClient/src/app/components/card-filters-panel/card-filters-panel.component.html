@@ -1,62 +1,73 @@
-<div class="card shadow-sm mb-3">
-  <div class="card-body">
+<div class="card shadow-sm mb-3 filters-panel">
+  <div class="card-body filters-panel__body">
 
-    <!-- Header -->
-    <div class="d-flex align-items-center justify-content-between mb-2">
-      <div class="fw-semibold">Filters</div>
+    <!-- Top utility row -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+      <div class="text-muted small">
+        Showing {{ showing }} of {{ total }}
+        <span *ngIf="getActiveFilterCount() > 0" class="ms-1">
+          • <span class="badge text-bg-light border">{{ getActiveFilterCount() }} active</span>
+        </span>
+      </div>
 
       <div class="d-flex align-items-center gap-2">
-        <span class="text-muted small">
-          Showing {{ showing }} of {{ total }}
-          <span *ngIf="getActiveFilterCount() > 0" class="ms-1">
-            • <span class="badge text-bg-light border">{{ getActiveFilterCount() }} active</span>
-          </span>
-        </span>
-
         <button class="btn btn-sm btn-outline-secondary" (click)="reset()">
           Reset
-        </button>
-
-        <button *ngIf="showToggle"
-                class="btn btn-sm btn-outline-secondary"
-                (click)="toggle()">
-          {{ filtersOpen ? 'Minimize' : 'Expand' }}
         </button>
       </div>
     </div>
 
-    <div *ngIf="!showToggle || filtersOpen">
+    <div>
 
-      <!-- ================= SEARCH ================= -->
-      <div class="mb-3">
-        <div class="fw-semibold small text-muted mb-2"></div>
+      <!-- Mode buttons -->
+<div class="filter-mode-pill mb-3" role="tablist" aria-label="Filter mode">
+  <button type="button"
+          class="filter-mode-pill__btn"
+          [class.active]="mode === 'search'"
+          (click)="mode = 'search'">
+    Search
+  </button>
 
+  <button type="button"
+          class="filter-mode-pill__btn"
+          [class.active]="mode === 'filter'"
+          (click)="mode = 'filter'">
+    Filters
+  </button>
+
+  <button type="button"
+          class="filter-mode-pill__btn"
+          [class.active]="mode === 'sort'"
+          (click)="mode = 'sort'">
+    Sort
+  </button>
+</div>
+
+      <!-- SEARCH -->
+      <div *ngIf="mode === 'search'" class="panel-section">
         <div class="row g-2">
-          <div class="col-12 col-md-6">
-            <label class="form-label mb-1">Search</label>
+          <div class="col-12 col-lg-6">
+            <label class="form-label mb-1">Card name</label>
             <input class="form-control"
-                  [(ngModel)]="model.q"
-                  (ngModelChange)="onAnyChange()"
-                  placeholder="e.g. blue, dark magician..." />
+                   [(ngModel)]="model.q"
+                   (ngModelChange)="onAnyChange()"
+                   placeholder="e.g. blue, dark magician..." />
           </div>
         </div>
       </div>
 
-      <!-- ================= CARD KIND ================= -->
-      <div class="mb-3">
-        <div class="fw-semibold small text-muted mb-2"></div>
-
+      <!-- FILTER -->
+      <div *ngIf="mode === 'filter'" class="panel-section">
         <div class="row g-2 align-items-end">
-
           <div class="col-12 col-md-4">
             <label class="form-label mb-1">Frame Type</label>
             <select class="form-select"
                     [(ngModel)]="model.frameType"
                     (change)="onFrameTypeChange()">
-<option value="">Any</option>
-<option *ngFor="let ft of frameTypeOptions" [value]="ft">
-  {{ formatFrameType(ft) }}
-</option>
+              <option value="">Any</option>
+              <option *ngFor="let ft of frameTypeOptions" [value]="ft">
+                {{ formatFrameType(ft) }}
+              </option>
             </select>
           </div>
 
@@ -79,25 +90,25 @@
               <option *ngFor="let a of attributeOptions" [value]="a">{{ a }}</option>
             </select>
           </div>
-
         </div>
       </div>
 
-      <!-- ================= SORT ================= -->
-      <div>
-        <div class="fw-semibold small text-muted mb-2"></div>
-
+      <!-- SORT -->
+      <div *ngIf="mode === 'sort'" class="panel-section">
         <div class="row g-2">
           <div class="col-6 col-md-3">
             <label class="form-label mb-1">Sort By</label>
-            <select class="form-select"
-                    [(ngModel)]="model.sortKey"
-                    (change)="onAnyChange()">
-              <option value="name">Name</option>
-              <option *ngIf="showMonsterOnly()" value="atk">ATK</option>
-              <option *ngIf="showMonsterOnly()" value="def">DEF</option>
-              <option *ngIf="showMonsterOnly()" value="level">Level</option>
-            </select>
+<select class="form-select"
+        [(ngModel)]="model.sortKey"
+        (change)="onAnyChange()">
+  <option value="name">Name</option>
+  <option *ngIf="showMonsterOnly()" value="atk">ATK</option>
+  <option *ngIf="showMonsterOnly()" value="def">DEF</option>
+  <option *ngIf="showMonsterOnly()" value="level">Level</option>
+  <option *ngFor="let opt of extraSortOptions" [value]="opt.value">
+    {{ opt.label }}
+  </option>
+</select>
           </div>
 
           <div class="col-6 col-md-3">
@@ -110,6 +121,11 @@
             </select>
           </div>
         </div>
+      </div>
+
+      <!-- Active summary -->
+      <div *ngIf="getActiveSummary()" class="alert alert-light border py-2 px-3 mt-3 mb-0">
+        <span class="small">{{ getActiveSummary() }}</span>
       </div>
 
     </div>

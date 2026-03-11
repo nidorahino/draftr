@@ -117,11 +117,6 @@
 /* ================================
    Details panel description background
 ================================== */
-.details-desc {
-  background: rgba(10, 14, 22, 0.18) !important;
-  border-color: rgba(232, 238, 252, 0.12) !important;
-  color: rgba(232, 238, 252, 0.86) !important;
-}
 
 /* badges look better on dark */
 :host ::ng-deep .badge.text-bg-light {

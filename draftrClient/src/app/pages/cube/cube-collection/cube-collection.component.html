@@ -1,3 +1,21 @@
+<div filters>
+  <app-card-filters-panel
+    [filters]="filters"
+    (filtersChange)="onFiltersChange($event)"
+    [showToggle]="false"
+    [showing]="filteredItems.length"
+    [total]="items.length"
+    [frameTypeOptions]="frameTypeOptions"
+    [monsterTypeOptions]="monsterTypeOptions"
+    [spellTypeOptions]="spellTypeOptions"
+    [trapTypeOptions]="trapTypeOptions"
+    [attributeOptions]="attributeOptions"
+    [extraSortOptions]="[
+      { value: 'updatedAt', label: 'Recently Added' }
+    ]"
+  ></app-card-filters-panel>
+</div>
+
 <div class="row g-3">
 
   <!-- LEFT -->
@@ -112,21 +130,6 @@
     </div>
 
   </div>
-
-<div filters>
-<app-card-filters-panel
-  [filters]="filters"
-  (filtersChange)="onFiltersChange($event)"
-  [showToggle]="false"
-  [showing]="filteredItems.length"
-  [total]="items.length"
-  [frameTypeOptions]="frameTypeOptions"
-  [monsterTypeOptions]="monsterTypeOptions"
-  [spellTypeOptions]="spellTypeOptions"
-  [trapTypeOptions]="trapTypeOptions"
-  [attributeOptions]="attributeOptions"
-></app-card-filters-panel>
-</div>
 
 </app-card-browser>
   </div>

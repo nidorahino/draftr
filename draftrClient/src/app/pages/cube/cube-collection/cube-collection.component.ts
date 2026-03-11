@@ -493,20 +493,37 @@ list.sort((a: CollectionItem, b: CollectionItem) => {
   const ad: Partial<CubeCardDetails> = a.details ?? {};
   const bd: Partial<CubeCardDetails> = b.details ?? {};
 
-  // 1 frame type grouping
-  const frameCompare =
-    this.getFrameTypeOrder(ad.frameType) - this.getFrameTypeOrder(bd.frameType);
+  // Keep frame grouping unless sorting by updatedAt
+  if (f.sortKey !== 'updatedAt') {
+    const frameCompare =
+      this.getFrameTypeOrder(ad.frameType) - this.getFrameTypeOrder(bd.frameType);
 
-  if (frameCompare !== 0) return frameCompare;
+    if (frameCompare !== 0) return frameCompare;
+  }
 
-  // 2 chosen sort key
-  const av = f.sortKey === 'name' ? (ad.name ?? '') : (ad as any)[f.sortKey];
-  const bv = f.sortKey === 'name' ? (bd.name ?? '') : (bd as any)[f.sortKey];
+  let av: any;
+  let bv: any;
+
+  switch (f.sortKey) {
+    case 'name':
+      av = ad.name ?? '';
+      bv = bd.name ?? '';
+      break;
+
+    case 'updatedAt':
+      av = a.updatedAt ? new Date(a.updatedAt).getTime() : null;
+      bv = b.updatedAt ? new Date(b.updatedAt).getTime() : null;
+      break;
+
+    default:
+      av = (ad as any)[f.sortKey];
+      bv = (bd as any)[f.sortKey];
+      break;
+  }
 
   const valueCompare = this.compareNullableValues(av, bv) * dir;
   if (valueCompare !== 0) return valueCompare;
 
-  // 3 stable fallback
   return this.compareNullableValues(ad.name ?? '', bd.name ?? '');
 });
 

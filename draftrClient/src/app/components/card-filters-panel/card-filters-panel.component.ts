@@ -8,6 +8,7 @@ import { CardFilters, DEFAULT_FILTERS } from '../../models/card-filters';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './card-filters-panel.component.html',
+  styleUrls: ['./card-filters-panel.component.css'],
 })
 export class CardFiltersPanelComponent implements OnChanges {
   @Input() filters: CardFilters = { ...DEFAULT_FILTERS };
@@ -24,10 +25,10 @@ export class CardFiltersPanelComponent implements OnChanges {
   @Input() total = 0;
 
   @Input() showToggle = false;
-  @Input() filtersOpen = true;
-  @Output() filtersOpenChange = new EventEmitter<boolean>();
+  @Input() extraSortOptions: { value: string; label: string }[] = [];
 
   model: CardFilters = { ...DEFAULT_FILTERS };
+  mode: 'search' | 'filter' | 'sort' = 'sort';
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['filters']) {
@@ -42,11 +43,6 @@ export class CardFiltersPanelComponent implements OnChanges {
   reset(): void {
     this.model = { ...DEFAULT_FILTERS };
     this.filtersChange.emit({ ...this.model });
-  }
-
-  toggle(): void {
-    this.filtersOpen = !this.filtersOpen;
-    this.filtersOpenChange.emit(this.filtersOpen);
   }
 
   onFrameTypeChange(): void {
@@ -145,5 +141,53 @@ private titleCase(s: string): string {
   const x = (s ?? '').toString().trim();
   if (!x) return x;
   return x.charAt(0).toUpperCase() + x.slice(1).toLowerCase();
+}
+
+getActiveSummary(): string {
+  const parts: string[] = [];
+
+  // Search
+  if (this.model.q?.trim()) {
+    parts.push(`searching for cards containing "${this.model.q.trim()}"`);
+  }
+
+  // Filters
+  const filterParts: string[] = [];
+
+  if (this.model.frameType) {
+    filterParts.push(`frame type ${this.formatFrameType(this.model.frameType)}`);
+  }
+
+  if (this.model.race) {
+    filterParts.push(`${this.getRaceLabel().toLowerCase()} ${this.model.race}`);
+  }
+
+  if (this.model.attribute) {
+    filterParts.push(`attribute ${this.model.attribute}`);
+  }
+
+  if (filterParts.length) {
+    parts.push(`filtering to ${filterParts.join(', ')}`);
+  }
+
+  // Sort
+  if (this.model.sortKey) {
+    const sortLabel =
+      this.model.sortKey === 'atk' ? 'ATK' :
+      this.model.sortKey === 'def' ? 'DEF' :
+      this.model.sortKey === 'level' ? 'Level' :
+      'Name';
+
+    const dirLabel = this.model.sortDir === 'desc' ? 'descending' : 'ascending';
+
+    parts.push(`sorted by ${sortLabel} ${dirLabel}`);
+  }
+
+  if (!parts.length) {
+    return '';
+  }
+
+  const sentence = parts.join(', ');
+  return sentence.charAt(0).toUpperCase() + sentence.slice(1) + '.';
 }
 }

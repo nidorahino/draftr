@@ -9,18 +9,21 @@
     <!-- parent can inject extra header controls -->
     <ng-content select="[headerExtras]"></ng-content>
 
-    <div class="btn-group btn-group-sm">
-      <button class="btn btn-outline-secondary"
-              [class.active]="viewMode === 'list'"
-              (click)="setMode('list')">
-        List
-      </button>
-      <button class="btn btn-outline-secondary"
-              [class.active]="viewMode === 'image'"
-              (click)="setMode('image')">
-        Cards
-      </button>
-    </div>
+<div class="cb-view-pill" role="tablist" aria-label="View mode">
+  <button type="button"
+          class="cb-view-pill__btn"
+          [class.active]="viewMode === 'list'"
+          (click)="setMode('list')">
+    List
+  </button>
+
+  <button type="button"
+          class="cb-view-pill__btn"
+          [class.active]="viewMode === 'image'"
+          (click)="setMode('image')">
+    Cards
+  </button>
+</div>
   </div>
 </div>
 

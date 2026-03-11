@@ -780,10 +780,6 @@ getRowStyleForCard(c: { frameType?: string | null; cardType?: string | null; hum
   return {};
 }
 
-  toggleFilters() {
-  this.filtersOpen = !this.filtersOpen;
-}
-
 getActiveFilterCount(): number {
   const f = this.filters;
 
